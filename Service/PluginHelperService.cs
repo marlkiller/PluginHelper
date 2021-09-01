@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Web.UI.MobileControls;
 using System.Windows.Forms;
 using PluginHelper.Entity;
 using PluginHelper.Handler;
@@ -235,6 +234,7 @@ namespace PluginHelper.Service
                 return false;                    
             }
             logEventHandler(this,new LogEventHandler("lpAddress >> " + lpAddress.ToString("x")));
+            MessageBox.Show("WriteProcessMemory!!!!");
 
             // lpLLAddress 要执行的函数地址
             // lpAddress 参数地址
@@ -267,42 +267,46 @@ namespace PluginHelper.Service
 
             // 00007FFC6036AC30 | 48:83EC 38                           | sub rsp,38                              |
             
-            // 000001A7F4690000 | 6A 00                                | push 0                                  |
-            // 000001A7F4690002 | 6A 00                                | push 0                                  |
-            // 000001A7F4690004 | 6A 00                                | push 0                                  |
-            // 000001A7F4690006 | 6A 00                                | push 0                                  |
-            // 000001A7F4690008 | 48:B8 30AC3660FC7F0000               | mov rax,<user32.MessageBoxA>            |
-            // 000001A7F4690012 | FFD0                                 | call rax                                |
-            // 000001A7F4690014 | 48:83C4 20                           | add rsp,20                              |
-            // 000001A7F4690018 | C3                                   | ret                                     |
+            // 0000024231300000             | 48:83EC 20               | sub rsp,20                              |
+            // 0000024231300004             | 41:51                    | push r9                                 |
+            // 0000024231300006             | 49:B8 00002E3142020000   | mov r8,242312E0000                      | 242312E0000:"this is title"
+            // 0000024231300010             | 41:50                    | push r8                                 |
+            // 0000024231300012             | 48:BA 00002F3142020000   | mov rdx,242312F0000                     | 242312F0000:"this is value"
+            // 000002423130001C             | 52                       | push rdx                                |
+            // 000002423130001D             | 51                       | push rcx                                |
+            // 000002423130001E             | 48:B8 20AC465EF97F0000   | mov rax,<user32.MessageBoxA>            |
+            // 0000024231300028             | FFD0                     | call rax                                |
+            // 000002423130002A             | 48:83C4 40               | add rsp,40                              |
+            // 000002423130002E             | C3                       | ret                                     |
             
             MemUtil.appendAll(asmList, new byte[]
             {
-                0x6A, 0x00
+                0X48, 0X83, 0XEC, 0X20,
+                0x41, 0x51
             });
             
             MemUtil.appendAll(asmList, new byte[]
             {
-                0xB8
+                0x49,0xB8
             });
             MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(titleAddress.ToInt64(), 16)));
             
             MemUtil.appendAll(asmList, new byte[]
             {
-                0x50
+                0x41,0x50
             });
             MemUtil.appendAll(asmList, new byte[]
             {
-                0xB8
+                0x48,0xBA
             });
             MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(valueAddress.ToInt64(), 16)));
             MemUtil.appendAll(asmList, new byte[]
             {
-                0x50
+                0x52
             });
             MemUtil.appendAll(asmList, new byte[]
             {
-                0x6A, 0x00,
+                0x51,
                 0x48, 0xB8
             });
             MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(lpLLAddress.ToInt64(), 16)));
@@ -310,7 +314,7 @@ namespace PluginHelper.Service
             MemUtil.appendAll(asmList, new byte[]
             {
                 0xFF, 0xD0,
-                0x48, 0x83, 0xC4, 0x20,
+                0X48, 0X83, 0XC4, 0X40,
                 0xC3
             });
 
