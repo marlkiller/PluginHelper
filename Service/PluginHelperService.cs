@@ -2,11 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Web.UI.MobileControls;
 using System.Windows.Forms;
-using Binarysharp.Assemblers.Fasm;
 using PluginHelper.Entity;
+using PluginHelper.Handler;
 using PluginHelper.Native;
 using TextBox = System.Windows.Forms.TextBox;
 
@@ -14,6 +16,8 @@ namespace PluginHelper.Service
 {
     public class PluginHelperService
     {
+        public event EventHandler<LogEventHandler> logEventHandler;
+
         public IntPtr processId { get; set; }
 
         public List<ProcessEntity> refreshProcessList(string filterName)
@@ -194,76 +198,43 @@ namespace PluginHelper.Service
             }
             
             IntPtr lpLLAddress = NativeMethods.GetProcAddress(NativeMethods.GetModuleHandle("user32.dll"), "MessageBoxA");
-            MessageBox.Show(
-                $@"lpAddress toString x : {lpLLAddress.ToString("x")}");
-            
+
+            logEventHandler(this,new LogEventHandler($@"user32.dll >> MessageBoxA lpLLAddress : {lpLLAddress.ToString("x")}"));
             
             var titleBytes = MemUtil.convertStr2ByteArr(title);
             var titleAddress = NativeMethods.VirtualAllocEx(openProcess, (IntPtr)null, (IntPtr)titleBytes.Length, NativeMethods.Commit, NativeMethods.ExecuteReadWrite);
             MemUtil.WriteBytes(openProcess,titleAddress,titleBytes,titleBytes.Length);
+            logEventHandler(this,new LogEventHandler("titleAddress >> " + titleAddress.ToString("x")));
 
             var valueBytes = MemUtil.convertStr2ByteArr(value);
             var valueAddress = NativeMethods.VirtualAllocEx(openProcess, (IntPtr)null, (IntPtr)valueBytes.Length, NativeMethods.Commit, NativeMethods.ExecuteReadWrite);
             MemUtil.WriteBytes(openProcess,valueAddress,valueBytes,valueBytes.Length);
+            logEventHandler(this,new LogEventHandler("valueAddress >> " + valueAddress.ToString("x")));
 
-            // 32 位 MessageBoxA
-            // 0C740000 | 6A 00                    | push 0                                  |
-            // 0C740002 | 6A 00                    | push 0                                  |
-            // 0C740004 | 6A 00                    | push 0                                  |
-            // 0C740006 | 6A 00                    | push 0                                  |
-            // 0C740008 | B8 60ED5D75              | mov eax,<user32.MessageBoxA>            |
-            // 0C74000D | FFD0                     | call eax                                |
-            // 0C74000F | C3                       | ret                                     |
-            
-            var fasmNet = new FasmNet();
-            fasmNet.AddLine("use32");
-            fasmNet.AddLine("push 0");
-            fasmNet.AddLine("push {0}",titleAddress.ToInt32());
-            fasmNet.AddLine("push {0}",valueAddress.ToInt32());
-            fasmNet.AddLine("push 0");
-            fasmNet.AddLine("mov eax,{0}" , lpLLAddress.ToInt32());
-            fasmNet.AddLine("call eax");
-            fasmNet.AddLine("ret");
-            byte[] buffer = fasmNet.Assemble();
-            
-                
-            // 64 位 MessageBoxA
-            // 00007FFC6036AC30 | 48:83EC 38                           | sub rsp,38                              |
-            
-            
-            // 000001A7F4690000 | 6A 00                                | push 0                                  |
-            // 000001A7F4690002 | 6A 00                                | push 0                                  |
-            // 000001A7F4690004 | 6A 00                                | push 0                                  |
-            // 000001A7F4690006 | 6A 00                                | push 0                                  |
-            // 000001A7F4690008 | 48:B8 30AC3660FC7F0000               | mov rax,<user32.MessageBoxA>            |
-            // 000001A7F4690012 | FFD0                                 | call rax                                |
-            // 000001A7F4690014 | 48:83C4 20                           | add rsp,20                              |
-            // 000001A7F4690018 | C3                                   | ret                                     |
-            // byte[] buffer = { 0x6A, 0x00, 
-            //     0x6A, 0x00, 
-            //     0x6A, 0x00, 
-            //     0x6A, 0x00,
-            // 0x48, 0xB8,0x30,0xAC,0x36,0x60,0xFC,0x7F,0x00,0x00,
-            // 0xFF,0xD0,
-            // 0x48,0x83,0xc4,0x20,0xC3};
-            
+            byte[] buffer;
+            if (NativeMethods.Is64BitProcess())
+            {
+                buffer = buffer64(lpLLAddress,titleAddress,valueAddress);
+            }
+            else
+            {
+                buffer = buffer32(lpLLAddress,titleAddress,valueAddress);
+            }
             IntPtr lpAddress = NativeMethods.VirtualAllocEx(openProcess, (IntPtr)null, (IntPtr)buffer.Length, NativeMethods.Commit, NativeMethods.ExecuteReadWrite);
+            
             if (lpAddress == IntPtr.Zero)
             {
                 MessageBox.Show("VirtualAllocEx 异常");
                 return false;
             }
-            MessageBox.Show(
-                $@"lpAddress toString x : {lpAddress.ToString("x")}");
-
-            
+        
             Boolean writeBytes = MemUtil.WriteBytes(openProcess,lpAddress,buffer,buffer.Length);
             if (!writeBytes)
             {
                 MessageBox.Show("WriteProcessMemory 异常");
                 return false;                    
             }
-            MessageBox.Show("WriteProcessMemory");
+            logEventHandler(this,new LogEventHandler("lpAddress >> " + lpAddress.ToString("x")));
 
             // lpLLAddress 要执行的函数地址
             // lpAddress 参数地址
@@ -282,8 +253,120 @@ namespace PluginHelper.Service
             
             NativeMethods.CloseHandle(remoteThread);
             NativeMethods.CloseHandle(openProcess);
+            
+            logEventHandler(this,new LogEventHandler("inject code over ~"));
+
             return true;
 
+        }
+
+        private static byte[] buffer64(IntPtr lpLLAddress,IntPtr titleAddress,IntPtr valueAddress)
+        {
+            # region 64 位 MessageBoxA
+            ArrayList asmList = new ArrayList(); 
+
+            // 00007FFC6036AC30 | 48:83EC 38                           | sub rsp,38                              |
+            
+            // 000001A7F4690000 | 6A 00                                | push 0                                  |
+            // 000001A7F4690002 | 6A 00                                | push 0                                  |
+            // 000001A7F4690004 | 6A 00                                | push 0                                  |
+            // 000001A7F4690006 | 6A 00                                | push 0                                  |
+            // 000001A7F4690008 | 48:B8 30AC3660FC7F0000               | mov rax,<user32.MessageBoxA>            |
+            // 000001A7F4690012 | FFD0                                 | call rax                                |
+            // 000001A7F4690014 | 48:83C4 20                           | add rsp,20                              |
+            // 000001A7F4690018 | C3                                   | ret                                     |
+            
+            MemUtil.appendAll(asmList, new byte[]
+            {
+                0x6A, 0x00
+            });
+            
+            MemUtil.appendAll(asmList, new byte[]
+            {
+                0xB8
+            });
+            MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(titleAddress.ToInt64(), 16)));
+            
+            MemUtil.appendAll(asmList, new byte[]
+            {
+                0x50
+            });
+            MemUtil.appendAll(asmList, new byte[]
+            {
+                0xB8
+            });
+            MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(valueAddress.ToInt64(), 16)));
+            MemUtil.appendAll(asmList, new byte[]
+            {
+                0x50
+            });
+            MemUtil.appendAll(asmList, new byte[]
+            {
+                0x6A, 0x00,
+                0x48, 0xB8
+            });
+            MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(lpLLAddress.ToInt64(), 16)));
+
+            MemUtil.appendAll(asmList, new byte[]
+            {
+                0xFF, 0xD0,
+                0x48, 0x83, 0xC4, 0x20,
+                0xC3
+            });
+
+            # endregion
+
+            byte[] buffer = asmList.ToArray(typeof(byte)) as byte[];
+            return buffer;
+        }
+        
+        private static byte[] buffer32(IntPtr lpLLAddress,IntPtr titleAddress,IntPtr valueAddress)
+        {
+            # region 32 位 MessageBoxA
+
+            ArrayList asmList = new ArrayList();
+            
+            // 755DED60 | 8BFF                     | mov edi,edi                             |
+                
+            // 0C740000 | 6A 00                    | push 0                                  |
+            // 0C740002 | 6A 00                    | push 0                                  |
+            // 0C740004 | 6A 00                    | push 0                                  |
+            // 0C740006 | 6A 00                    | push 0                                  |
+            // 0C740008 | B8 60ED5D75              | mov eax,<user32.MessageBoxA>            |
+            // 0C74000D | FFD0                     | call eax                                |
+            // 0C74000F | C3                       | ret                                     |
+            
+            MemUtil.appendAll(asmList,new byte[]{ 
+                0x6A, 0x00
+            });
+            MemUtil.appendAll(asmList,new byte[]{ 
+                0xB8
+            });
+            MemUtil.appendAll(asmList,MemUtil.AsmChangebytes(MemUtil.intTohex(titleAddress.ToInt32(), 8)));
+            MemUtil.appendAll(asmList,new byte[]{ 
+                0x50
+            });
+            MemUtil.appendAll(asmList,new byte[]{ 
+                0xB8
+            });
+            MemUtil.appendAll(asmList,MemUtil.AsmChangebytes(MemUtil.intTohex(valueAddress.ToInt32(), 8)));
+            MemUtil.appendAll(asmList,new byte[]{ 
+                0x50
+            });
+            MemUtil.appendAll(asmList,new byte[]{ 
+               
+                0x6A, 0x00,
+                0xB8,
+            });
+            MemUtil.appendAll(asmList,MemUtil.AsmChangebytes(MemUtil.intTohex(lpLLAddress.ToInt32(), 8)));
+            MemUtil.appendAll(asmList,new byte[]{
+                0xFF, 0xD0,
+                0xC3
+            });
+            # endregion
+
+            byte[] buffer = asmList.ToArray(typeof(byte)) as byte[];
+            return buffer;
         }
     }
 }
