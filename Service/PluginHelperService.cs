@@ -247,9 +247,9 @@ namespace PluginHelper.Service
 
             NativeMethods.WaitForSingleObject(remoteThread, 60 * 1000);    
             
-            NativeMethods.VirtualFreeEx( openProcess, lpAddress, (IntPtr)buffer.Length, NativeMethods.Release );
-            NativeMethods.VirtualFreeEx( openProcess, titleAddress, (IntPtr)titleBytes.Length, NativeMethods.Release );
-            NativeMethods.VirtualFreeEx( openProcess, valueAddress, (IntPtr)valueBytes.Length, NativeMethods.Release );
+            NativeMethods.VirtualFreeEx( openProcess, lpAddress, (IntPtr)0, NativeMethods.Release );
+            NativeMethods.VirtualFreeEx( openProcess, titleAddress, (IntPtr)0, NativeMethods.Release );
+            NativeMethods.VirtualFreeEx( openProcess, valueAddress, (IntPtr)0, NativeMethods.Release );
             
             NativeMethods.CloseHandle(remoteThread);
             NativeMethods.CloseHandle(openProcess);
@@ -281,7 +281,13 @@ namespace PluginHelper.Service
             
             MemUtil.appendAll(asmList, new byte[]
             {
+                /*push all*/
+                0X9C,0X54,0X50,0X51,0X52,0X53,0X55,0X56,0X57,0X41,0X50,0X41,0X51,0X41,0X52,0X41,0X53,0X41,0X54,0X41,0X55,0X41,0X56,0X41,0X57,
+                
                 0X48, 0X83, 0XEC, 0X20,
+                
+                0X49,0XC7,0XC1,0X00,0X00,0X00,0X00,
+                
                 0x41, 0x51
             });
             
@@ -306,6 +312,8 @@ namespace PluginHelper.Service
             });
             MemUtil.appendAll(asmList, new byte[]
             {
+                0X49,0XC7,0XC1,0X00,0X00,0X00,0X00,
+                
                 0x51,
                 0x48, 0xB8
             });
@@ -315,6 +323,8 @@ namespace PluginHelper.Service
             {
                 0xFF, 0xD0,
                 0X48, 0X83, 0XC4, 0X40,
+                /* pop all*/
+                0X41,0X5F,0X41,0X5E,0X41,0X5D,0X41,0X5C,0X41,0X5B,0X41,0X5A,0X41,0X59,0X41,0X58,0X5F,0X5E,0X5D,0X5B,0X5A,0X59,0X58,0X5C,0X9D,
                 0xC3
             });
 
@@ -332,6 +342,7 @@ namespace PluginHelper.Service
             
             // 755DED60 | 8BFF                     | mov edi,edi                             |
                 
+            // pushad
             // 0C740000 | 6A 00                    | push 0                                  |
             // 0C740002 | 6A 00                    | push 0                                  |
             // 0C740004 | 6A 00                    | push 0                                  |
@@ -339,9 +350,10 @@ namespace PluginHelper.Service
             // 0C740008 | B8 60ED5D75              | mov eax,<user32.MessageBoxA>            |
             // 0C74000D | FFD0                     | call eax                                |
             // 0C74000F | C3                       | ret                                     |
+            // popad
             
             MemUtil.appendAll(asmList,new byte[]{ 
-                0x6A, 0x00
+                0x60,0x6A, 0x00
             });
             MemUtil.appendAll(asmList,new byte[]{ 
                 0xB8
@@ -365,6 +377,7 @@ namespace PluginHelper.Service
             MemUtil.appendAll(asmList,MemUtil.AsmChangebytes(MemUtil.intTohex(lpLLAddress.ToInt32(), 8)));
             MemUtil.appendAll(asmList,new byte[]{
                 0xFF, 0xD0,
+                0x61,
                 0xC3
             });
             # endregion

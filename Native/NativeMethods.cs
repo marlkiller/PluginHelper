@@ -211,6 +211,17 @@ namespace PluginHelper.Native
 
         public static readonly int Release = 0x8000;
 
+        
+        // hProcess
+        //     目标进程的句柄。该句柄必须拥有 PROCESS_VM_OPERATION 权限。
+        // lpAddress
+        //     指向要释放的虚拟内存空间首地址的指针。
+        // 如果 dwFreeType 为 MEM_RELEASE, 则该参数必须为VirtualAllocEx的返回值.
+        // dwSize
+        //     虚拟内存空间的字节数。
+        // 如果 dwFreeType 为 MEM_RELEASE，则 dwSize 必须为0 . 按 VirtualAllocEx申请时的大小全部释放。
+        // 如果dwFreeType 为 MEM_DECOMMIT, 则释放从lpAddress 开始的一个或多个字节 ，即 lpAddress +dwSize。
+        // dwFreeType
         // 释放内存空间
         [DllImport("kernel32.dll")]
         public static extern bool VirtualFreeEx(IntPtr hProcess, IntPtr lpAddress, IntPtr dwSize, int dwFreeType);

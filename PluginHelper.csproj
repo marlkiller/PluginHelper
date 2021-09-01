@@ -98,6 +98,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Handler\LogEventHandler.cs" />
+    <Compile Include="Native\ASMUtil64.cs" />
     <Compile Include="Native\HookType.cs" />
     <Compile Include="Native\MemUtil.cs" />
     <Compile Include="Native\NativeMethods.cs" />
