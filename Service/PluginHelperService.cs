@@ -265,19 +265,22 @@ namespace PluginHelper.Service
             # region 64 位 MessageBoxA
             ArrayList asmList = new ArrayList(); 
 
-            // 00007FFC6036AC30 | 48:83EC 38                           | sub rsp,38                              |
-            
-            // 0000024231300000             | 48:83EC 20               | sub rsp,20                              |
-            // 0000024231300004             | 41:51                    | push r9                                 |
-            // 0000024231300006             | 49:B8 00002E3142020000   | mov r8,242312E0000                      | 242312E0000:"this is title"
-            // 0000024231300010             | 41:50                    | push r8                                 |
-            // 0000024231300012             | 48:BA 00002F3142020000   | mov rdx,242312F0000                     | 242312F0000:"this is value"
-            // 000002423130001C             | 52                       | push rdx                                |
-            // 000002423130001D             | 51                       | push rcx                                |
-            // 000002423130001E             | 48:B8 20AC465EF97F0000   | mov rax,<user32.MessageBoxA>            |
-            // 0000024231300028             | FFD0                     | call rax                                |
-            // 000002423130002A             | 48:83C4 40               | add rsp,40                              |
-            // 000002423130002E             | C3                       | ret                                     |
+            // 00007FF95E46AC20 <user32.Mes | 48:83EC 38               | sub rsp,38                              | MessageBoxA 函数头
+            // push all
+            // 000001D52AC60019             | 48:83EC 20               | sub rsp,20                              |
+            // 000001D52AC6001D             | 49:C7C1 00000000         | mov r9,0                                |
+            // 000001D52AC60024             | 41:51                    | push r9                                 |
+            // 000001D52AC60026             | 49:B8 0000C42AD5010000   | mov r8,1D52AC40000                      | 1D52AC40000:"this is title"
+            // 000001D52AC60030             | 41:50                    | push r8                                 |
+            // 000001D52AC60032             | 48:BA 0000C52AD5010000   | mov rdx,1D52AC50000                     | 1D52AC50000:"this is value"
+            // 000001D52AC6003C             | 52                       | push rdx                                |
+            // 000001D52AC6003D             | 49:C7C1 00000000         | mov r9,0                                |
+            // 000001D52AC60044             | 51                       | push rcx                                |
+            // 000001D52AC60045             | 48:B8 20AC465EF97F0000   | mov rax,<user32.MessageBoxA>            |
+            // 000001D52AC6004F             | FFD0                     | call rax                                |
+            // 000001D52AC60051             | 48:83C4 40               | add rsp,40                              |
+            // pop all
+            // 000001D52AC6006E             | C3                       | ret                                     |
             
             MemUtil.appendAll(asmList, new byte[]
             {
@@ -340,16 +343,20 @@ namespace PluginHelper.Service
 
             ArrayList asmList = new ArrayList();
             
-            // 755DED60 | 8BFF                     | mov edi,edi                             |
+            // 755DED60 | 8BFF                     | mov edi,edi                             | MessageBoxA 函数头
                 
             // pushad
-            // 0C740000 | 6A 00                    | push 0                                  |
-            // 0C740002 | 6A 00                    | push 0                                  |
-            // 0C740004 | 6A 00                    | push 0                                  |
-            // 0C740006 | 6A 00                    | push 0                                  |
-            // 0C740008 | B8 60ED5D75              | mov eax,<user32.MessageBoxA>            |
-            // 0C74000D | FFD0                     | call eax                                |
-            // 0C74000F | C3                       | ret                                     |
+            // 055D0000 | 60                       | pushad                                  |
+            // 055D0001 | 6A 00                    | push 0                                  |
+            // 055D0003 | B8 00003B05              | mov eax,53B0000                         | 53B0000:"this is title"
+            // 055D0008 | 50                       | push eax                                |
+            // 055D0009 | B8 00005C05              | mov eax,55C0000                         | 55C0000:"this is value"
+            // 055D000E | 50                       | push eax                                |
+            // 055D000F | 6A 00                    | push 0                                  |
+            // 055D0011 | B8 70ECBD77              | mov eax,<user32.MessageBoxA>            |
+            // 055D0016 | FFD0                     | call eax                                |
+            // 055D0018 | 61                       | popad                                   |
+            // 055D0019 | C3                       | ret                                     |
             // popad
             
             MemUtil.appendAll(asmList,new byte[]{ 
