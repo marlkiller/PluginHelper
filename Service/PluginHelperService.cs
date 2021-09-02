@@ -234,6 +234,7 @@ namespace PluginHelper.Service
                 return false;                    
             }
             logEventHandler(this,new LogEventHandler("lpAddress >> " + lpAddress.ToString("x")));
+            Clipboard.SetText(lpAddress.ToString("x"));
             MessageBox.Show("WriteProcessMemory!!!!");
 
             // lpLLAddress 要执行的函数地址
@@ -260,8 +261,26 @@ namespace PluginHelper.Service
 
         }
 
-        private static byte[] buffer64(IntPtr lpLLAddress,IntPtr titleAddress,IntPtr valueAddress)
+        private byte[] buffer64(IntPtr lpLLAddress,IntPtr titleAddress,IntPtr valueAddress)
         {
+            var asmUtilX64 = new AsmUtilX64();
+            asmUtilX64.Pushall();
+            asmUtilX64.SUB_RSP(0X30);
+            asmUtilX64.Mov_R9(0x0);
+            asmUtilX64.Mov_R8(titleAddress.ToInt64());
+            asmUtilX64.Mov_RDX(valueAddress.ToInt64());
+            asmUtilX64.Mov_RCX(0x0);
+            asmUtilX64.Mov_RAX(lpLLAddress.ToInt64());
+            asmUtilX64.Call_RAX();
+            asmUtilX64.ADD_RSP(0x30);
+            asmUtilX64.Popall();
+            asmUtilX64.Ret();
+
+            logEventHandler?.Invoke(this,new LogEventHandler($"Shell Code : {asmUtilX64.formatAsmCode()}"));
+
+            return asmUtilX64.inBytes();
+            
+            
             # region 64 位 MessageBoxA
             ArrayList asmList = new ArrayList(); 
 
@@ -331,10 +350,30 @@ namespace PluginHelper.Service
             return buffer;
         }
         
-        private static byte[] buffer32(IntPtr lpLLAddress,IntPtr titleAddress,IntPtr valueAddress)
+        private byte[] buffer32(IntPtr lpLLAddress,IntPtr titleAddress,IntPtr valueAddress)
         {
-            # region 32 位 MessageBoxA
+            
+            
+            var asmUtilX86 = new AsmUtilX86();
+            asmUtilX86.Pushad();
+            asmUtilX86.Push6A(0);
+            asmUtilX86.Mov_EAX(titleAddress.ToInt32());
+            asmUtilX86.Push_EAX();
+            asmUtilX86.Mov_EAX(valueAddress.ToInt32());
+            asmUtilX86.Push_EAX();
+            asmUtilX86.Push6A(0);
+            asmUtilX86.Mov_EAX(lpLLAddress.ToInt32());
+            asmUtilX86.Call_EAX();
+            asmUtilX86.Popad();
+            asmUtilX86.Ret();
 
+            logEventHandler?.Invoke(this,new LogEventHandler($"Shell Code : {asmUtilX86.formatAsmCode()}"));
+
+            return asmUtilX86.inBytes();
+            
+            
+            # region 32 位 MessageBoxA
+            
             ArrayList asmList = new ArrayList();
             
             // 755DED60 | 8BFF                     | mov edi,edi                             | MessageBoxA 函数头

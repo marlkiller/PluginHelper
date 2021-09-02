@@ -98,10 +98,12 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Handler\LogEventHandler.cs" />
-    <Compile Include="Native\ASMUtil64.cs" />
+    <Compile Include="Native\AsmUtilX64.cs" />
+    <Compile Include="Native\AsmUtilX86.cs" />
     <Compile Include="Native\HookType.cs" />
     <Compile Include="Native\MemUtil.cs" />
     <Compile Include="Native\NativeMethods.cs" />
+    <Compile Include="Native\ThreadHijack.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\PluginHelperService.cs" />

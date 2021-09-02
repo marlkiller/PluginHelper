@@ -208,7 +208,10 @@ namespace PluginHelper.Native
         [DllImport("kernel32.dll")]
         public static extern IntPtr VirtualAllocEx(IntPtr hwnd, IntPtr lpaddress, IntPtr size, int type, int tect);
 
-
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool SetThreadContext(IntPtr hThread, ref ThreadHijack.CONTEXT64 lpContext);
+        [DllImport("kernel32.dll")]
+        public static extern int ResumeThread(IntPtr hThread);
         public static readonly int Release = 0x8000;
 
         
@@ -229,7 +232,13 @@ namespace PluginHelper.Native
 
         public static readonly int PROCESS_ALL_ACCESS = 0x1F0FFF;
 
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr OpenThread(ThreadHijack.ThreadAccess dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
 
+        [DllImport("kernel32.dll")]
+        public static extern uint SuspendThread(IntPtr hThread);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool GetThreadContext(IntPtr hThread, ref ThreadHijack.CONTEXT64 lpContext);       
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, IntPtr dwProcessId);   
 
