@@ -237,7 +237,7 @@ namespace PluginHelper.Service
             MessageBox.Show("WriteProcessMemory!!!!");
 
             // lpLLAddress 要执行的函数地址
-            // lpAddress 参数地址
+            // lpAddress 代码注入地址
             var remoteThread = NativeMethods.CreateRemoteThread(openProcess, (IntPtr)null, (IntPtr)0, lpAddress, (IntPtr)0, 0, (IntPtr)null); 
             if (remoteThread==(IntPtr)0)
             {
