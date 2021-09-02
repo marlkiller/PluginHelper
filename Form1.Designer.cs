@@ -41,6 +41,7 @@
             this.btnRefresh = new System.Windows.Forms.Button();
             this.comboBoxProcessList = new System.Windows.Forms.ComboBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.btnReadMem = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.textBoxMsgValue = new System.Windows.Forms.TextBox();
@@ -48,7 +49,8 @@
             this.btnMsgInject = new System.Windows.Forms.Button();
             this.btnInjectCode = new System.Windows.Forms.Button();
             this.textAsmCode = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.textMemAddr = new System.Windows.Forms.TextBox();
+            this.comboBoxType = new System.Windows.Forms.ComboBox();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -169,7 +171,9 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.button1);
+            this.tabPage2.Controls.Add(this.comboBoxType);
+            this.tabPage2.Controls.Add(this.textMemAddr);
+            this.tabPage2.Controls.Add(this.btnReadMem);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -177,6 +181,16 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "内存读写";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // btnReadMem
+            // 
+            this.btnReadMem.Location = new System.Drawing.Point(244, 29);
+            this.btnReadMem.Name = "btnReadMem";
+            this.btnReadMem.Size = new System.Drawing.Size(75, 20);
+            this.btnReadMem.TabIndex = 0;
+            this.btnReadMem.Text = "读取";
+            this.btnReadMem.UseVisualStyleBackColor = true;
+            this.btnReadMem.Click += new System.EventHandler(this.button1_Click);
             // 
             // tabPage3
             // 
@@ -245,15 +259,23 @@
             this.textAsmCode.Size = new System.Drawing.Size(267, 291);
             this.textAsmCode.TabIndex = 0;
             // 
-            // button1
+            // textMemAddr
             // 
-            this.button1.Location = new System.Drawing.Point(121, 102);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.textMemAddr.Location = new System.Drawing.Point(27, 28);
+            this.textMemAddr.Name = "textMemAddr";
+            this.textMemAddr.Size = new System.Drawing.Size(123, 21);
+            this.textMemAddr.TabIndex = 1;
+            // 
+            // comboBoxType
+            // 
+            this.comboBoxType.FormattingEnabled = true;
+            this.comboBoxType.Items.AddRange(new object[] {"数字", "字节", "字符串", "图片"});
+            this.comboBoxType.Location = new System.Drawing.Point(156, 28);
+            this.comboBoxType.Name = "comboBoxType";
+            this.comboBoxType.Size = new System.Drawing.Size(82, 20);
+            this.comboBoxType.TabIndex = 2;
+            this.comboBoxType.Text = "选择类型";
+            this.comboBoxType.SelectedIndexChanged += new System.EventHandler(this.comboBoxType_SelectedIndexChanged);
             // 
             // Form1
             // 
@@ -269,10 +291,17 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.ComboBox comboBoxType;
+
+        private System.Windows.Forms.Button btnReadMem;
+        private System.Windows.Forms.TextBox textMemAddr;
+        private System.Windows.Forms.ComboBox comboBox1;
 
         private System.Windows.Forms.TextBox textBoxLog;
 

@@ -139,7 +139,11 @@ namespace PluginHelper
 
     private void button1_Click(object sender, EventArgs e)
     {
-      NativeMethods.MessageBoxA(0, "11111111", "2222222222222", 0);
+    }
+
+    private void comboBoxType_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      
     }
   }
 }
