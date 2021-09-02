@@ -265,33 +265,35 @@ namespace PluginHelper.Service
             # region 64 位 MessageBoxA
             ArrayList asmList = new ArrayList(); 
 
-            // 00007FF95E46AC20 <user32.Mes | 48:83EC 38               | sub rsp,38                              | MessageBoxA 函数头
+            // 这里的堆栈指针操作, 这么理解
+            // 而在x64汇编中，两方面都发生了变化。一是前四个参数分析通过四个寄存器传递：RCX、RDX、R8、R9，如果还有更多的参数，才通过椎栈传递。二是调用者负责椎栈空间的分配与回收。
+            // 栈要按照16字节对齐,当我们在 Call函数的时候.返回地址会入栈.
+            // push 了 4个参数, = sub rsp,4*(4*2) = 32 = 0x20 ,
+            // 加上我们call函数用了一个 eax,  32+8 = 40 =0x28
+            // 40 + 8 (函数返回地址 ) = 48 = 0x30
+            
+            //  00007FFC6036AC30 | 48:83EC 38                           | sub rsp,38                              | MessageBoxA函数头
             // push all
-            // 000001D52AC60019             | 48:83EC 20               | sub rsp,20                              |
-            // 000001D52AC6001D             | 49:C7C1 00000000         | mov r9,0                                |
-            // 000001D52AC60024             | 41:51                    | push r9                                 |
-            // 000001D52AC60026             | 49:B8 0000C42AD5010000   | mov r8,1D52AC40000                      | 1D52AC40000:"this is title"
-            // 000001D52AC60030             | 41:50                    | push r8                                 |
-            // 000001D52AC60032             | 48:BA 0000C52AD5010000   | mov rdx,1D52AC50000                     | 1D52AC50000:"this is value"
-            // 000001D52AC6003C             | 52                       | push rdx                                |
-            // 000001D52AC6003D             | 49:C7C1 00000000         | mov r9,0                                |
-            // 000001D52AC60044             | 51                       | push rcx                                |
-            // 000001D52AC60045             | 48:B8 20AC465EF97F0000   | mov rax,<user32.MessageBoxA>            |
-            // 000001D52AC6004F             | FFD0                     | call rax                                |
-            // 000001D52AC60051             | 48:83C4 40               | add rsp,40                              |
+            // 0000019036990019 | 48:83EC 30                           | sub rsp,30                              |
+            // 000001903699001D | 41:B9 00000000                       | mov r9d,0                               |
+            // 0000019036990023 | 49:B8 0000973690010000               | mov r8,19036970000                      | 19036970000:"this is title"
+            // 000001903699002D | 48:BA 0000983690010000               | mov rdx,19036980000                     | 19036980000:"this is value"
+            // 0000019036990037 | B9 00000000                          | mov ecx,0                               |
+            // 000001903699003C | 48:B8 30AC3660FC7F0000               | mov rax,<user32.MessageBoxA>            |
+            // 0000019036990046 | FFD0                                 | call rax                                |
+            // 0000019036990048 | 48:83C4 30                           | add rsp,30                              |
             // pop all
-            // 000001D52AC6006E             | C3                       | ret                                     |
+            // 0000019036990065 | C3                                   | ret                                     |
             
             MemUtil.appendAll(asmList, new byte[]
             {
                 /*push all*/
                 0X9C,0X54,0X50,0X51,0X52,0X53,0X55,0X56,0X57,0X41,0X50,0X41,0X51,0X41,0X52,0X41,0X53,0X41,0X54,0X41,0X55,0X41,0X56,0X41,0X57,
                 
-                0X48, 0X83, 0XEC, 0X20,
+                0X48,0X83,0XEC,0X30,
                 
-                0X49,0XC7,0XC1,0X00,0X00,0X00,0X00,
+                0X41,0XB9,0X00,0X00,0X00,0X00
                 
-                0x41, 0x51
             });
             
             MemUtil.appendAll(asmList, new byte[]
@@ -300,24 +302,17 @@ namespace PluginHelper.Service
             });
             MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(titleAddress.ToInt64(), 16)));
             
-            MemUtil.appendAll(asmList, new byte[]
-            {
-                0x41,0x50
-            });
+           
             MemUtil.appendAll(asmList, new byte[]
             {
                 0x48,0xBA
             });
             MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(valueAddress.ToInt64(), 16)));
+          
             MemUtil.appendAll(asmList, new byte[]
             {
-                0x52
-            });
-            MemUtil.appendAll(asmList, new byte[]
-            {
-                0X49,0XC7,0XC1,0X00,0X00,0X00,0X00,
+                0XB9,0X00,0X00,0X00,0X00,
                 
-                0x51,
                 0x48, 0xB8
             });
             MemUtil.appendAll(asmList, MemUtil.AsmChangebytes(MemUtil.intTohex(lpLLAddress.ToInt64(), 16)));
@@ -325,12 +320,11 @@ namespace PluginHelper.Service
             MemUtil.appendAll(asmList, new byte[]
             {
                 0xFF, 0xD0,
-                0X48, 0X83, 0XC4, 0X40,
+                0X48, 0X83, 0XC4, 0X30,
                 /* pop all*/
                 0X41,0X5F,0X41,0X5E,0X41,0X5D,0X41,0X5C,0X41,0X5B,0X41,0X5A,0X41,0X59,0X41,0X58,0X5F,0X5E,0X5D,0X5B,0X5A,0X59,0X58,0X5C,0X9D,
                 0xC3
             });
-
             # endregion
 
             byte[] buffer = asmList.ToArray(typeof(byte)) as byte[];
