@@ -31,8 +31,8 @@ void PrintLogger(DWORD eax);
 //7B493420    E8 9F619300     call WeChatWi.7BDC95C4                   ; 日志HOOK
 //LoggerReturnAddress
 
-DWORD LoggerCallAddress = Util->Offset(0x7BDC95C4 - 0x7AF20000);
 DWORD LoggerHookAddress = Util->Offset(0x7B493420 - 0x7AF20000);
+DWORD LoggerCallAddress = Util->Offset(0x7BDC95C4 - 0x7AF20000);
 DWORD LoggerReturnAddress = LoggerHookAddress + 5;
 CHAR LoggerHookBackUp[5] = { 0 };
 
