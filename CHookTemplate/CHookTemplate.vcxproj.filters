@@ -16,6 +16,9 @@
     <Filter Include="Common">
       <UniqueIdentifier>{5e0adf20-1203-46a4-943a-200b07912774}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Form">
+      <UniqueIdentifier>{6da2cbb9-eca0-4fc8-9299-862efac8b27c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -33,6 +36,9 @@
     <ClInclude Include="HiWeChat.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -47,5 +53,10 @@
     <ClCompile Include="ConsoleUtil.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CHookTemplate.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
