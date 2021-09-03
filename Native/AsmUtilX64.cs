@@ -16,94 +16,82 @@ namespace PluginHelper.Native
             Asmcode += "415F415E415D415C415B415A415941585F5E5D5B5A59585C9D";
         }
 
-        public void SUB_RSP(long addre)
+        public void SUB_RSP(long address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            Asmcode = Asmcode + "48";
+            SUB_ESP(address);
+        }
+
+        public void Mov_R9(long address)
+        {
+            if (is64(address))
             {
-                Asmcode = Asmcode + "4883EC" + intTohex(addre, 2);
+                Asmcode = Asmcode + "49B9" + intTohex(address, 16);
             }
             else
             {
-                Asmcode = Asmcode + "4881EC" + intTohex(addre, 8);
+                Asmcode = Asmcode + "41B9" + intTohex(address, 8);
             }
         }
 
-        public void Mov_R9(long addre)
+        public void Mov_R8(long address)
         {
-            if (addre>Int32.MaxValue)
+            if (is64(address))
             {
-                Asmcode = Asmcode + "49B9" + intTohex(addre, 16);
+                Asmcode = Asmcode + "49B8" + intTohex(address, 16);
             }
             else
             {
-                Asmcode = Asmcode + "41B9" + intTohex(addre, 8);
-            }
-        }
-
-        public void Mov_R8(long addre)
-        {
-            if (addre>Int32.MaxValue)
-            {
-                Asmcode = Asmcode + "49B8" + intTohex(addre, 16);
-            }
-            else
-            {
-                Asmcode = Asmcode + "41B8" + intTohex(addre, 8);
+                Asmcode = Asmcode + "41B8" + intTohex(address, 8);
             }        
         }
 
-        public void Mov_RDX(long addre)
+        public void Mov_RDX(long address)
         {
-            if (addre>Int32.MaxValue)
+            if (is64(address))
             {
-                Asmcode = Asmcode + "48BA" + intTohex(addre, 16);
+                Asmcode = Asmcode + "48BA" + intTohex(address, 16);
             }
             else
             {
-                Mov_EDX(addre);
+                Mov_EDX(address);
             }        
         }
 
-        public void Mov_RCX(long addre)
+        public void Mov_RCX(long address)
         {
-            if (addre>Int32.MaxValue)
+            if (is64(address))
             {
-                Asmcode = Asmcode + "48B9" + intTohex(addre, 16);
+                Asmcode = Asmcode + "48B9" + intTohex(address, 16);
             }
             else
             {
-                Mov_ECX(addre);
+                Mov_ECX(address);
             }  
         }
 
-        public void Mov_RAX(long addre)
+        public void Mov_RAX(long address)
         {
-            if (addre>Int32.MaxValue)
+            
+            if (is64(address))
             {
-                Asmcode = Asmcode + "48B8" + intTohex(addre, 16);
+                Asmcode = Asmcode + "48B8" + intTohex(address, 16);
             }
             else
             {
-                Mov_EAX(addre);
+                Mov_EAX(address);
             }  
         }
 
         public void Call_RAX()
         {
-            Asmcode = Asmcode + "FFD0";
+            Call_EAX();
         }
 
-        public void ADD_RSP(long addre)
+        public void ADD_RSP(long address)
         {
-            if ((addre <= 127) && (addre >= -128))
-            {
-                Asmcode = Asmcode + "4883C4" + intTohex(addre, 2);
-            }
-            else
-            {
-                Asmcode = Asmcode + "4881EC" + intTohex(addre, 8);
-            }
-            
+            Asmcode = Asmcode + "48";
+            Add_ESP(address);
         }
 
         public byte[] inBytes()
@@ -115,6 +103,11 @@ namespace PluginHelper.Native
             }
             Asmcode = "";
             return reAsmCode;
+        }
+        
+        private static bool is64(long address)
+        {
+            return !(address <= Int32.MaxValue) && (address >= Int32.MinValue);
         }
     }
 }

@@ -7,14 +7,14 @@ namespace PluginHelper.Native
     {
         public string Asmcode = "";
 
-        public string hexUint(uint address)
+        public string hexUint(uint addressss)
         {
-            string str = address.ToString("X");
+            string str = addressss.ToString("X");
             return str;
         }
-        private string hex(long address)
+        private string hex(long addressss)
         {
-            string str = address.ToString("X");
+            string str = addressss.ToString("X");
             return str;
         }
 
@@ -48,15 +48,15 @@ namespace PluginHelper.Native
         }
 
 
-        public void SUB_ESP(int addre)
+        public void SUB_ESP(long address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "83EC" + intTohex(addre, 2);
+                Asmcode = Asmcode + "83EC" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "81EC" + intTohex(addre, 8);
+                Asmcode = Asmcode + "81EC" + intTohex(address, 8);
             }
         }
 
@@ -71,85 +71,86 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "03D8";
         }
 
-        public void Add_EAX_DWORD_Ptr(int addre)
+        public void Add_EAX_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "0305" + intTohex(addre, 8);
+            Asmcode = Asmcode + "0305" + intTohex(address, 8);
         }
 
-        public void Add_EBX_DWORD_Ptr(int addre)
+        public void Add_EBX_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "031D" + intTohex(addre, 8);
+            Asmcode = Asmcode + "031D" + intTohex(address, 8);
         }
 
-        public void Add_EBP_DWORD_Ptr(int addre)
+        public void Add_EBP_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "032D" + intTohex(addre, 8);
+            Asmcode = Asmcode + "032D" + intTohex(address, 8);
         }
 
-        public void Add_EAX(int addre)
+        public void Add_EAX(int address)
         {
-            Asmcode = Asmcode + "05" + intTohex(addre, 8);
+            Asmcode = Asmcode + "05" + intTohex(address, 8);
         }
 
-        public void Add_EBX(int addre)
+        public void Add_EBX(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "83C3" + intTohex(addre, 2);
+                Asmcode = Asmcode + "83C3" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "81C3" + intTohex(addre, 8);
+                Asmcode = Asmcode + "81C3" + intTohex(address, 8);
             }
         }
 
-        public void Add_ECX(int addre)
+        public void Add_ECX(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "83C1" + intTohex(addre, 2);
+                Asmcode = Asmcode + "83C1" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "81C1" + intTohex(addre, 8);
+                Asmcode = Asmcode + "81C1" + intTohex(address, 8);
             }
         }
 
-        public void Add_EDX(int addre)
+        public void Add_EDX(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "83C2" + intTohex(addre, 2);
+                Asmcode = Asmcode + "83C2" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "81C2" + intTohex(addre, 8);
+                Asmcode = Asmcode + "81C2" + intTohex(address, 8);
             }
         }
 
-        public void Add_ESI(int addre)
+        public void Add_ESI(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "83C6" + intTohex(addre, 2);
+                Asmcode = Asmcode + "83C6" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "81C6" + intTohex(addre, 8);
+                Asmcode = Asmcode + "81C6" + intTohex(address, 8);
             }
         }
 
-        public void Add_ESP(int addre)
+        public void Add_ESP(long address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if (is8(address))
             {
-                Asmcode = Asmcode + "83C4" + intTohex(addre, 2);
+                Asmcode = Asmcode + "83C4" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "81C4" + intTohex(addre, 8);
+                Asmcode = Asmcode + "81C4" + intTohex(address, 8);
             }
         }
+
         #endregion
 
         public void Nop()
@@ -157,9 +158,9 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "90";
         }
 
-        public void RetA(int addre)
+        public void RetA(int address)
         {
-            Asmcode = Asmcode + intTohex(addre, 4);
+            Asmcode = Asmcode + intTohex(address, 4);
         }
 
         public void IN_AL_DX()
@@ -189,70 +190,70 @@ namespace PluginHelper.Native
 
         #region "mov"
 
-        public void Mov_DWORD_Ptr_EAX_ADD(int addre, int addre1)
+        public void Mov_DWORD_Ptr_EAX_ADD(int address, int address1)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "C740" + intTohex(addre, 2) + intTohex(addre1, 8);
+                Asmcode = Asmcode + "C740" + intTohex(address, 2) + intTohex(address1, 8);
             }
             else
             {
-                Asmcode = Asmcode + "C780" + intTohex(addre, 8) + intTohex(addre1, 8);
+                Asmcode = Asmcode + "C780" + intTohex(address, 8) + intTohex(address1, 8);
             }
         }
 
-        public void Mov_DWORD_Ptr_ESP_ADD(int addre, int addre1)
+        public void Mov_DWORD_Ptr_ESP_ADD(int address, int address1)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "C74424" + intTohex(addre, 2) + intTohex(addre1, 8);
+                Asmcode = Asmcode + "C74424" + intTohex(address, 2) + intTohex(address1, 8);
             }
             else
             {
-                Asmcode = Asmcode + "C78424" + intTohex(addre, 8) + intTohex(addre1, 8);
+                Asmcode = Asmcode + "C78424" + intTohex(address, 8) + intTohex(address1, 8);
             }
         }
 
-        public void Mov_DWORD_Ptr_ESP_ADD_EAX(int addre)
+        public void Mov_DWORD_Ptr_ESP_ADD_EAX(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "894424" + intTohex(addre, 2);
+                Asmcode = Asmcode + "894424" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "898424" + intTohex(addre, 8);
+                Asmcode = Asmcode + "898424" + intTohex(address, 8);
             }
         }
 
-        public void Mov_DWORD_Ptr_ESI_ADD_EAX(int addre)
+        public void Mov_DWORD_Ptr_ESI_ADD_EAX(int address)
         {
-            if ((addre <= 127) && (addre >= -128)) {
-                Asmcode = Asmcode + "8946" + intTohex(addre, 2);
+            if ((address <= 127) && (address >= -128)) {
+                Asmcode = Asmcode + "8946" + intTohex(address, 2);
             }
             else {
-                Asmcode = Asmcode + "8986" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8986" + intTohex(address, 8);
             }
         }
 
-        public void Mov_DWORD_Ptr_ECX_ADD_EAX(int addre)
+        public void Mov_DWORD_Ptr_ECX_ADD_EAX(int address)
         {
-            if ((addre <= 127) && (addre >= -128)) {
-                Asmcode = Asmcode + "8941" + intTohex(addre, 2);
+            if ((address <= 127) && (address >= -128)) {
+                Asmcode = Asmcode + "8941" + intTohex(address, 2);
             }
             else {
-                Asmcode = Asmcode + "8981" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8981" + intTohex(address, 8);
             }
         }
 
-        public void Mov_DWORD_Ptr_ESP(int addre)
+        public void Mov_DWORD_Ptr_ESP(int address)
         {
-            Asmcode = Asmcode + "C70424" + intTohex(addre, 8);
+            Asmcode = Asmcode + "C70424" + intTohex(address, 8);
         }
 
-        public void Mov_DWORD_Ptr_EAX(int addre)
+        public void Mov_DWORD_Ptr_EAX(int address)
         {
-            Asmcode = Asmcode + "A3" + intTohex(addre, 8);
+            Asmcode = Asmcode + "A3" + intTohex(address, 8);
         }
 
         public void Mov_DWORD_Ptr_EDX_EAX()
@@ -260,42 +261,42 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "8902";
         }
 
-        public void Mov_EBX_DWORD_Ptr(int addre)
+        public void Mov_EBX_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "8B1D" + intTohex(addre, 8);
+            Asmcode = Asmcode + "8B1D" + intTohex(address, 8);
         }
 
-        public void Mov_ECX_DWORD_Ptr(int addre)
+        public void Mov_ECX_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "8B0D" + intTohex(addre, 8);
+            Asmcode = Asmcode + "8B0D" + intTohex(address, 8);
         }
 
-        public void Mov_EAX_DWORD_Ptr(int addre)
+        public void Mov_EAX_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "A1" + intTohex(addre, 8);
+            Asmcode = Asmcode + "A1" + intTohex(address, 8);
         }
 
-        public void Mov_EDX_DWORD_Ptr(int addre)
+        public void Mov_EDX_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "8B15" + intTohex(addre, 8);
+            Asmcode = Asmcode + "8B15" + intTohex(address, 8);
         }
 
-        public void Mov_ESI_DWORD_Ptr(int addre)
+        public void Mov_ESI_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "8B35" + intTohex(addre, 8);
+            Asmcode = Asmcode + "8B35" + intTohex(address, 8);
         }
 
-        public void Mov_ESP_DWORD_Ptr(int addre)
+        public void Mov_ESP_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "8B25" + intTohex(addre, 8);
+            Asmcode = Asmcode + "8B25" + intTohex(address, 8);
         }
 
-        public void Mov_EBP_DWORD_Ptr(int addre)
+        public void Mov_EBP_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "8B2D" + intTohex(addre, 8);
+            Asmcode = Asmcode + "8B2D" + intTohex(address, 8);
         }
 
-        public void Mov_EAX_DWORD_Ptr_EAX(int addre)
+        public void Mov_EAX_DWORD_Ptr_EAX(int address)
         {
             Asmcode = Asmcode + "8B00";
         }
@@ -340,476 +341,476 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "8B06";
         }
 
-        public void Mov_EAX_DWORD_Ptr_EAX_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B40" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B40" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B80" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B80" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX_DWORD_Ptr_ESP_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_ESP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B4424" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B4424" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B8424" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B8424" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX_DWORD_Ptr_EBX_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B43" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B43" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B83" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B83" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX_DWORD_Ptr_ECX_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B41" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B41" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B81" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B81" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX_DWORD_Ptr_EDX_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B42" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B42" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B82" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B82" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX_DWORD_Ptr_EDI_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B47" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B47" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B87" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B87" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX_DWORD_Ptr_EBP_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B45" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B45" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B85" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B85" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX_DWORD_Ptr_ESI_Add(int addre)
+        public void Mov_EAX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B46" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B46" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B86" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B86" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_EAX_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B58" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B58" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B98" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B98" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_ESP_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_ESP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B5C24" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B5C24" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B9C24" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B9C24" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_EBX_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B5B" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B5B" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B9B" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B9B" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_ECX_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B59" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B59" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B99" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B99" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_EDX_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B5A" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B5A" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B9A" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B9A" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_EDI_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B5F" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B5F" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B9F" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B9F" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_EBP_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B5D" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B5D" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B9D" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B9D" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EBX_DWORD_Ptr_ESI_Add(int addre)
+        public void Mov_EBX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B5E" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B5E" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B9E" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B9E" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_EAX_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B48" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B48" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B88" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B88" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_ESP_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_ESP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B4C24" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B4C24" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B8C24" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B8C24" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_EBX_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B4B" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B4B" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B8B" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B8B" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_ECX_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B49" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B49" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B89" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B89" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_EDX_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B4A" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B4A" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B8A" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B8A" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_EDI_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B4F" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B4F" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B8F" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B8F" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_EBP_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B4D" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B4D" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B8D" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B8D" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ECX_DWORD_Ptr_ESI_Add(int addre)
+        public void Mov_ECX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B4E" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B4E" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B8E" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B8E" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDI_DWORD_Ptr_ECX_Add(int addre)
+        public void Mov_EDI_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128)) {
-                Asmcode = Asmcode + "8B79" + intTohex(addre, 2);
+            if ((address <= 127) && (address >= -128)) {
+                Asmcode = Asmcode + "8B79" + intTohex(address, 2);
             }
             else {
-                Asmcode = Asmcode + "8BB9" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8BB9" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDI_DWORD_Ptr_EAX_Add(int addre)
+        public void Mov_EDI_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128)) {
-                Asmcode = Asmcode + "8B78" + intTohex(addre, 2);
+            if ((address <= 127) && (address >= -128)) {
+                Asmcode = Asmcode + "8B78" + intTohex(address, 2);
             }
             else {
-                Asmcode = Asmcode + "8BB8" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8BB8" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_EAX_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B50" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B50" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B90" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B90" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_ESP_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_ESP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B5424" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B5424" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B9424" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B9424" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_EBX_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B53" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B53" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B93" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B93" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_ECX_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B51" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B51" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B91" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B91" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_EDX_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B52" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B52" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B92" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B92" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_EDI_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B57" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B57" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B97" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B97" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_EBP_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B55" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B55" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B95" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B95" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EDX_DWORD_Ptr_ESI_Add(int addre)
+        public void Mov_EDX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B56" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B56" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8B96" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8B96" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ESI_DWORD_Ptr_EAX_Add(int addre)
+        public void Mov_ESI_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8B70" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8B70" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8BB0" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8BB0" + intTohex(address, 8);
             }
         }
 
-        public void Mov_ESI_DWORD_Ptr_EDX_Add(int addre)
+        public void Mov_ESI_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128)) {
-                Asmcode = Asmcode + "8B72" + intTohex(addre, 2);
+            if ((address <= 127) && (address >= -128)) {
+                Asmcode = Asmcode + "8B72" + intTohex(address, 2);
             }
             else {
-                Asmcode = Asmcode + "8BB2" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8BB2" + intTohex(address, 8);
             }
         }
 
-        public void Mov_EAX(long addre)
+        public void Mov_EAX(long address)
         {
-            Asmcode = Asmcode + "B8" + intTohex(addre, 8);
+            Asmcode = Asmcode + "B8" + intTohex(address, 8);
         }
 
-        // public void Mov_EAX(float addre)
+        // public void Mov_EAX(float address)
         // {
-        //     int intVal = FloatToIntBits(addre);
+        //     int intVal = FloatToIntBits(address);
         //     Asmcode = Asmcode + "B8" + intTohex(intVal, 8);
         // }
 
-        public void Mov_EBX(int addre)
+        public void Mov_EBX(int address)
         {
-            Asmcode = Asmcode + "BB" + intTohex(addre, 8);
+            Asmcode = Asmcode + "BB" + intTohex(address, 8);
         }
 
-        public void Mov_ECX(long addre)
+        public void Mov_ECX(long address)
         {
-            Asmcode = Asmcode + "B9" + intTohex(addre, 8);
+            Asmcode = Asmcode + "B9" + intTohex(address, 8);
         }
 
-        public void Mov_EDX(long addre)
+        public void Mov_EDX(long address)
         {
-            Asmcode = Asmcode + "BA" + intTohex(addre, 8);
+            Asmcode = Asmcode + "BA" + intTohex(address, 8);
         }
 
-        public void Mov_ESI(int addre)
+        public void Mov_ESI(int address)
         {
-            Asmcode = Asmcode + "BE" + intTohex(addre, 8);
+            Asmcode = Asmcode + "BE" + intTohex(address, 8);
         }
 
-        public void Mov_ESP(int addre)
+        public void Mov_ESP(int address)
         {
-            Asmcode = Asmcode + "BC" + intTohex(addre, 8);
+            Asmcode = Asmcode + "BC" + intTohex(address, 8);
         }
 
-        public void Mov_EBP(int addre)
+        public void Mov_EBP(int address)
         {
-            Asmcode = Asmcode + "BD" + intTohex(addre, 8);
+            Asmcode = Asmcode + "BD" + intTohex(address, 8);
         }
 
-        public void Mov_EDI(int addre)
+        public void Mov_EDI(int address)
         {
-            Asmcode = Asmcode + "BF" + intTohex(addre, 8);
+            Asmcode = Asmcode + "BF" + intTohex(address, 8);
         }
 
         public void Mov_ESI_DWORD_Ptr_EAX()
@@ -1220,20 +1221,20 @@ namespace PluginHelper.Native
         #endregion
 
         #region "Push"
-        public void Push68U(uint addre)
+        public void Push68U(uint address)
         {
-            Asmcode = Asmcode + "68" + uintTohex(addre, 8);
+            Asmcode = Asmcode + "68" + uintTohex(address, 8);
 
         }
-        public void Push68(int addre)
+        public void Push68(int address)
         {
-            Asmcode = Asmcode + "68" + intTohex(addre, 8);
+            Asmcode = Asmcode + "68" + intTohex(address, 8);
 
         }
 
-        public void Push6A(int addre)
+        public void Push6A(int address)
         {
-            Asmcode = Asmcode + "6A" + intTohex(addre, 2);
+            Asmcode = Asmcode + "6A" + intTohex(address, 2);
         }
 
         public void Push_EAX()
@@ -1241,9 +1242,9 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "50";
         }
 
-        public void Push_DWORD_Ptr(int addre)
+        public void Push_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "FF35" + intTohex(addre, 8);
+            Asmcode = Asmcode + "FF35" + intTohex(address, 8);
         }
 
         public void Push_ECX()
@@ -1323,19 +1324,19 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "FFD7";
         }
 
-        public void Call_DWORD_Ptr(int addre)
+        public void Call_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "FF15" + intTohex(addre, 8);
+            Asmcode = Asmcode + "FF15" + intTohex(address, 8);
         }
 
-        public void Call(int OldAddress, int TargetCall)
+        public void Call(int Oldaddressss, int TargetCall)
         {
-            Asmcode = Asmcode + "E8" + intTohex(((TargetCall - OldAddress) - 10), 8);
+            Asmcode = Asmcode + "E8" + intTohex(((TargetCall - Oldaddressss) - 10), 8);
         }
 
-        public void Call_Adr(int addre)
+        public void Call_Adr(int address)
         {
-            Asmcode = Asmcode + "E8" + intTohex(addre, 8);
+            Asmcode = Asmcode + "E8" + intTohex(address, 8);
         }
 
         public void Call_DWORD_Ptr_EAX()
@@ -1350,388 +1351,388 @@ namespace PluginHelper.Native
         #endregion
 
         #region "Lea"
-        public void Lea_EAX_DWORD_Ptr_EAX_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D40" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D40" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D80" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D80" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EAX_DWORD_Ptr_EBX_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D43" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D43" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D83" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D83" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EAX_DWORD_Ptr_ECX_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D41" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D41" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D81" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D81" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EAX_DWORD_Ptr_EDX_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D42" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D42" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D82" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D82" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EAX_DWORD_Ptr_ESI_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D46" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D46" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D86" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D86" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EAX_DWORD_Ptr_ESP_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_ESP_Add(int address)
         {
-            string test = "8D44" + intTohex(addre, 2);
-            if ((addre <= 127) && (addre >= -128))
+            string test = "8D44" + intTohex(address, 2);
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4424" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4424" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8424" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8424" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EAX_DWORD_Ptr_EBP_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4424" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4424" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8424" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8424" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EAX_DWORD_Ptr_EDI_Add(int addre)
+        public void Lea_EAX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D47" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D47" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D87" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D87" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_EAX_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D58" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D58" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D98" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D98" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_ESP_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_ESP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D5C24" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D5C24" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D9C24" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D9C24" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_EBX_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D5B" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D5B" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D9B" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D9B" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_ECX_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D59" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D59" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D99" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D99" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_EDX_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D5A" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D5A" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D9A" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D9A" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_EDI_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D5F" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D5F" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D9F" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D9F" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_EBP_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D5D" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D5D" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D9D" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D9D" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EBX_DWORD_Ptr_ESI_Add(int addre)
+        public void Lea_EBX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D5E" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D5E" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D9E" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D9E" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_EAX_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D48" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D48" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D88" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D88" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_ESP_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_ESP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4C24" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4C24" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8C24" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8C24" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_EBX_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4B" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4B" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8B" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8B" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_ECX_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D49" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D49" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D89" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D89" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_EDX_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4A" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4A" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8A" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8A" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_EDI_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4F" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4F" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8F" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8F" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_EBP_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4D" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4D" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8D" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8D" + intTohex(address, 8);
             }
         }
 
-        public void Lea_ECX_DWORD_Ptr_ESI_Add(int addre)
+        public void Lea_ECX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D4E" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D4E" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D8E" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D8E" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_EAX_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_EAX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D50" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D50" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D90" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D90" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_ESP_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_ESP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D5424" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D5424" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D9424" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D9424" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_EBX_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_EBX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D53" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D53" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D93" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D93" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_ECX_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_ECX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D51" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D51" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D91" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D91" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_EDX_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_EDX_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D52" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D52" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D92" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D92" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_EDI_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_EDI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D57" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D57" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D97" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D97" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_EBP_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_EBP_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D55" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D55" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D95" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D95" + intTohex(address, 8);
             }
         }
 
-        public void Lea_EDX_DWORD_Ptr_ESI_Add(int addre)
+        public void Lea_EDX_DWORD_Ptr_ESI_Add(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "8D56" + intTohex(addre, 2);
+                Asmcode = Asmcode + "8D56" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "8D96" + intTohex(addre, 8);
+                Asmcode = Asmcode + "8D96" + intTohex(address, 8);
             }
         }
         #endregion
@@ -1788,15 +1789,15 @@ namespace PluginHelper.Native
         }
 
         #region "CMP"
-        public void Cmp_EAX(int addre)
+        public void Cmp_EAX(int address)
         {
-            if ((addre <= 127) && (addre >= -128))
+            if ((address <= 127) && (address >= -128))
             {
-                Asmcode = Asmcode + "83F8" + intTohex(addre, 2);
+                Asmcode = Asmcode + "83F8" + intTohex(address, 2);
             }
             else
             {
-                Asmcode = Asmcode + "3D" + intTohex(addre, 8);
+                Asmcode = Asmcode + "3D" + intTohex(address, 8);
             }
         }
 
@@ -1805,14 +1806,14 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "3BC2";
         }
 
-        public void Cmp_EAX_DWORD_Ptr(int addre)
+        public void Cmp_EAX_DWORD_Ptr(int address)
         {
-            Asmcode = Asmcode + "3B05" + intTohex(addre, 8);
+            Asmcode = Asmcode + "3B05" + intTohex(address, 8);
         }
 
-        public void Cmp_DWORD_Ptr_EAX(int addre)
+        public void Cmp_DWORD_Ptr_EAX(int address)
         {
-            Asmcode = Asmcode + "3905" + intTohex(addre, 8);
+            Asmcode = Asmcode + "3905" + intTohex(address, 8);
         }
         #endregion
 
@@ -1866,14 +1867,14 @@ namespace PluginHelper.Native
             Asmcode = Asmcode + "0FAFC2";
         }
 
-        public void Imul_EAX(int addre)
+        public void Imul_EAX(int address)
         {
-            Asmcode = Asmcode + "6BC0" + intTohex(addre, 2);
+            Asmcode = Asmcode + "6BC0" + intTohex(address, 2);
         }
 
-        public void ImulB_EAX(int addre)
+        public void ImulB_EAX(int address)
         {
-            Asmcode = Asmcode + "69C0" + intTohex(addre, 8);
+            Asmcode = Asmcode + "69C0" + intTohex(address, 8);
         }
         #endregion
 
@@ -1980,5 +1981,10 @@ namespace PluginHelper.Native
             }
             return result;
         }
+        private static bool is8(long address)
+        {
+            return (address <= 127) && (address >= -128);
+        }
+
     }
 }
