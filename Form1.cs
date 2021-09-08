@@ -159,7 +159,7 @@ namespace PluginHelper
       }
       catch (Exception exception)
       {
-        Console.WriteLine(exception);
+        MessageBox.Show(exception.Message);
         throw;
       }
 

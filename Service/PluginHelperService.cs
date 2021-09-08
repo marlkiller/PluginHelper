@@ -457,7 +457,7 @@ namespace PluginHelper.Service
                 NativeMethods.GetWindowRect(windowHandle, ref rect);
 
                 // 整个窗口画大圈
-                DrawBorderBox(0,0,rect.Size.Width-50,rect.Size.Height-110,5);
+                DrawBorderBox(0,0,rect.Width-50,rect.Height-110,5);
 
                 // 画小圈
                 DrawBorderBox(50,50,200,100,5);
@@ -488,52 +488,67 @@ namespace PluginHelper.Service
         unsafe void DrawFilledRect(int x, int y, int w, int h)
         {   
             NativeMethods.RECT rect = new NativeMethods.RECT( x, y, x + w, y + h);
-            NativeMethods.FillRect(hdc, rect, solidBrush);
+            NativeMethods.FillRect(hdc, ref rect, solidBrush);
         }
-        NativeMethods.RECT WBounds = default;
+
+        private static NativeMethods.RECT WBounds = default;
 
         public unsafe void drawGDIPlus(int x,int y,int w,int h)
         {
+            
             var rect = new NativeMethods.RECT(x,y,w,h);
             var windowHandle = NativeMethods.GetWindowHandle(this.processId);
+
+            MessageBox.Show("windowHandle" + windowHandle.ToString("x"));
             
-            NativeMethods.GetClientRect(windowHandle, out WBounds);
+            // top和left都为0；
+            NativeMethods.GetClientRect(windowHandle, ref WBounds);
+
+            // MessageBox.Show(string.Format(@"{0},{1},{2},{3},{4},{5}", WBounds.bottom, WBounds.left, WBounds.right, WBounds.top, WBounds.Height,
+            //     WBounds.Width));
+            
+            
             hdc  = NativeMethods.GetDC(windowHandle);
             solidBrush = NativeMethods.CreateSolidBrush(0x000000FF);
 
-            int GWL_HINSTANCE = (-6);
-            NativeMethods.WNDCLASSEX WClass = new NativeMethods.WNDCLASSEX();
-            WClass.cbSize = Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX));
+            var windowLong = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
+            MessageBox.Show("windowLong" + windowHandle.ToString("x"));
+
+            
+            
+            NativeMethods.WNDCLASSEX_D WClass = new NativeMethods.WNDCLASSEX_D();
+            WClass.cbSize = Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX_D));
             WClass.style = 0;
             WClass.lpfnWndProc =  lpfnWndProc;
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
-            WClass.hInstance = NativeMethods.GetWindowLongA(windowHandle, GWL_HINSTANCE);
-            WClass.hIcon = 0;
-            WClass.hCursor = 0;
+            WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
+            WClass.hIcon = new IntPtr(0);
+            WClass.hCursor = new IntPtr(0);
             WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
             // WClass.hbrBackground = IntPtr.Zero;
 
-            WClass.lpszMenuName = " ";
-            WClass.lpszClassName = " ";
-            WClass.hIconSm = 0;
-            NativeMethods.RegisterClassExA(ref WClass);	
-            const uint WS_POPUP = 0x80000000;
+            WClass.lpszMenuName = " this is lpszMenuName";
+            WClass.lpszClassName = " this is lpszClassName";
+            WClass.hIconSm = new IntPtr(0);
+            NativeMethods.RegisterClassEx(WClass);	
             const int LWA_COLORKEY = 0x01;
 
             IntPtr Hinstance = new IntPtr(null);
-            EspHWND = NativeMethods.CreateWindowExA(NativeMethods.WS_EX_TRANSPARENT | NativeMethods.WS_EX_TOPMOST | NativeMethods.WS_EX_LAYERED, 
-                " ", " ", WS_POPUP, WBounds.Left, WBounds.Top, WBounds.Right - WBounds.Left, WBounds.Bottom + WBounds.Left,
+                
+            EspHWND = NativeMethods.CreateWindowExW(NativeMethods.WS_EX.TRANSPARENT | NativeMethods.WS_EX.TOPMOST | NativeMethods.WS_EX.LAYERED, 
+                " ", " ", NativeMethods.WS.POPUP, WBounds.left, WBounds.top, WBounds.right - WBounds.left, WBounds.bottom + WBounds.left,
                 new IntPtr(null), new IntPtr(null), Hinstance, new IntPtr(null));
+            
             NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255,255,255).ToArgb(), 255, LWA_COLORKEY);
             NativeMethods.ShowWindow(EspHWND, 1);
             uint tmp;
 
             NativeMethods.MSG Msg = default;
             NativeMethods.CreateThread(IntPtr.Zero, 0, WorkLoop, IntPtr.Zero, 0, out tmp);
-            while (NativeMethods.GetMessageA(out Msg, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero) > 0) {
-                NativeMethods.TranslateMessage(out Msg);
-                NativeMethods.DispatchMessageA(out Msg);
+            while (NativeMethods.GetMessageW(ref Msg, IntPtr.Zero, 0, 0) > 0) {
+                NativeMethods.TranslateMessage(ref Msg);
+                NativeMethods.DispatchMessageW(ref Msg);
                 Thread.Sleep(1);
             }
             
@@ -556,26 +571,39 @@ namespace PluginHelper.Service
         private static int WM_NCPAINT = 0x0085;
         private static int WM_ERASEBKGND = 0x0014;
         private static int WM_PAINT = (0x000F);
-        private IntPtr lpfnWndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam)
+        private unsafe IntPtr lpfnWndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam)
         {
             switch (msg)
             {
                 case 0x000F : // WM_PAINT
                 {
+
                     NativeMethods.PAINTSTRUCT ps = default;
                     
                     IntPtr Memhdc;
                     IntPtr hdc;
                     IntPtr Membitmap;
 
-                    int win_width = WBounds.Right - WBounds.Left;
-                    int win_height = WBounds.Bottom + WBounds.Left;
                     
-                    hdc = NativeMethods.BeginPaint(hwnd, ps);
+                    // WBounds.bottom, WBounds.left, WBounds.right
+                    // 762,0,1472,0
+                    int win_width = WBounds.right - WBounds.left; // 1472-0=1472
+                    int win_height = WBounds.bottom + WBounds.left; // 762+0=762
+                    
+                    // int win_width =1000;
+                    // int win_height = 2000;
+
+                    // 将窗口需要重绘的区域设置为空
+                    hdc = NativeMethods.BeginPaint(hwnd, ref ps);
+                    
+                    // 在窗口的DC之外，可以建立自己的DC，就是说它不对应窗口，这个方法就是CreateCompatibleDC，这个DC就是一个内存缓冲区
                     Memhdc = NativeMethods.CreateCompatibleDC(hdc);
+                    
+                    // 该函数创建与指定的设备环境相关的设备兼容的位图
+
                     Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
                     NativeMethods.SelectObject(Memhdc, Membitmap);
-                    NativeMethods.FillRect(Memhdc, WBounds, new IntPtr(NativeMethods.WHITE_BRUSH));
+                    NativeMethods.FillRect(Memhdc, ref WBounds, new IntPtr(NativeMethods.WHITE_BRUSH));
                         
                         
                     var head = new NativeMethods.POINT();
@@ -587,15 +615,24 @@ namespace PluginHelper.Service
                     head.x = 200;
                     head.y = 400;
                         
+                    // Draw(hdc, head, foot);
                     Draw(Memhdc, head, foot);
-                    Int32 SRCCOPY =		0x00CC0020;
 
+                    Int32 SRCCOPY = 0x00CC0020;
+
+                    // Bitblt作用将某一内存块的数据传送到另一内存块
                     NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
                     NativeMethods.DeleteObject(Membitmap);
                     NativeMethods.DeleteDC(Memhdc);
                     NativeMethods.DeleteDC(hdc);
                     NativeMethods.EndPaint(hwnd, ref ps);
-                    NativeMethods.ValidateRect(hwnd, ref WBounds);
+
+                    fixed (NativeMethods.RECT* dev = &WBounds)
+                    {
+                        // 函数来强制使客户区的一个矩阵失效
+                        NativeMethods.ValidateRect(hwnd, dev);
+                    }
+
                 }
                 break;
                 
@@ -618,16 +655,11 @@ namespace PluginHelper.Service
         
         void Draw(IntPtr hdc,NativeMethods.POINT head,NativeMethods.POINT foot)
         {
-            float height = head.y - foot.y;
-            float width = height / 2.4f;
+            // float height = head.y - foot.y;
+            // float width = height / 2.4f;
             NativeMethods.SelectObject(hdc, BoxPen);
-            NativeMethods.Rectangle(hdc, foot.x - (width / 2), foot.y, head.x + (width / 2), head.y);
+            NativeMethods.Rectangle(hdc, 100, 100, 500, 500);
         }
-        protected virtual IntPtr OnWindowProc(IntPtr hWnd, UInt32 msg, UIntPtr wParam, IntPtr lParam)
-        {
-            return NativeMethods.DefWindowProcW(hWnd, msg, wParam, lParam);
-        }
-        
         
     }
 }

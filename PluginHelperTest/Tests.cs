@@ -7,9 +7,12 @@ namespace PluginHelperTest
     [TestFixture]
     public class Tests
     {
+        
         [Test]
         public void AsmTest64()
         {
+            
+            
             var asmUtilX64 = new AsmUtilX64();
             // asmUtilX64.Pushall();
             asmUtilX64.Mov_R9(0x2);
