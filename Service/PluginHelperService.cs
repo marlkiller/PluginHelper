@@ -500,15 +500,15 @@ namespace PluginHelper.Service
             NativeMethods.GetClientRect(windowHandle, out WBounds);
             hdc  = NativeMethods.GetDC(windowHandle);
             solidBrush = NativeMethods.CreateSolidBrush(0x000000FF);
-            
-            
+
+            int GWL_HINSTANCE = (-6);
             NativeMethods.WNDCLASSEX WClass = new NativeMethods.WNDCLASSEX();
             WClass.cbSize = Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX));
             WClass.style = 0;
             WClass.lpfnWndProc =  lpfnWndProc;
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
-            WClass.hInstance = reinterpret_cast<HINSTANCE>(GetWindowLongA(GameHWND, GWL_HINSTANCE));
+            WClass.hInstance = NativeMethods.GetWindowLongA(windowHandle, GWL_HINSTANCE);
             WClass.hIcon = 0;
             WClass.hCursor = 0;
             WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);

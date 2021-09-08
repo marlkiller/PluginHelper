@@ -281,6 +281,10 @@ public struct WindowMessage
         public static extern bool DestroyWindow(IntPtr hWnd);
         [DllImport("user32.dll")]
         public static extern void PostQuitMessage(int nExitCode);
+        
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLongA(IntPtr hWnd,int nindex);
+        
         public const int WHITE_BRUSH = 0x00000000;
         
         
