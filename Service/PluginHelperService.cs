@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using PluginHelper.Entity;
 using PluginHelper.Handler;
@@ -425,5 +427,212 @@ namespace PluginHelper.Service
             byte[] buffer = asmList.ToArray(typeof(byte)) as byte[];
             return buffer;
         }
+
+        private IntPtr hdc;
+        private IntPtr solidBrush;
+
+        
+        public void drawGDI(int x,int y,int w,int h)
+        {
+            new Thread(drawGDIStart).Start(new NativeMethods.RECT(x,y,w,h));
+        }
+
+        void drawGDIStart(object obj)
+        {
+            // 参数
+            var rectParams = (NativeMethods.RECT)obj;
+            
+            // 获取窗口句柄
+            var windowHandle = NativeMethods.GetWindowHandle(this.processId);
+            // 根据窗口句柄获得一个设备
+            hdc  = NativeMethods.GetDC(windowHandle);
+            // 创建一个具有指定颜色的逻辑刷子
+            solidBrush = NativeMethods.CreateSolidBrush(0x000000FF);
+
+            while (true)
+            {
+                Thread.Sleep(1000);
+
+                var rect = new NativeMethods.RECT();
+                NativeMethods.GetWindowRect(windowHandle, ref rect);
+
+                // 整个窗口画大圈
+                DrawBorderBox(0,0,rect.Size.Width-50,rect.Size.Height-110,5);
+
+                // 画小圈
+                DrawBorderBox(50,50,200,100,5);
+                
+                // 删除刷子 
+                NativeMethods.DeleteObject(NativeMethods.SelectObject(hdc, solidBrush));
+                // 画一条线
+                DrawLine(50, 50, 250, 150);
+            }            
+           
+        }
+        void DrawLine(int StartX, int StartY, int EndX, int EndY)
+        {
+            var hNPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 2, 0x000000FF);
+            NativeMethods.SelectObject(hdc, hNPen);
+            NativeMethods.MoveToEx(hdc, StartX, StartY, IntPtr.Zero); //start
+            NativeMethods.LineTo(hdc, EndX, EndY); //end
+            NativeMethods.DeleteObject(NativeMethods.SelectObject(hdc, hNPen));
+        }
+        void DrawBorderBox(int x, int y, int w, int h, int thickness)
+        {
+            DrawFilledRect(x, y, w, thickness); //Top horiz line
+            DrawFilledRect(x, y, thickness, h); //Left vertical line
+            DrawFilledRect((x + w), y, thickness, h); //right vertical line
+            DrawFilledRect(x, y + h, w + thickness, thickness); //bottom horiz line
+        }
+
+        unsafe void DrawFilledRect(int x, int y, int w, int h)
+        {   
+            NativeMethods.RECT rect = new NativeMethods.RECT( x, y, x + w, y + h);
+            NativeMethods.FillRect(hdc, rect, solidBrush);
+        }
+        NativeMethods.RECT WBounds = default;
+
+        public unsafe void drawGDIPlus(int x,int y,int w,int h)
+        {
+            var rect = new NativeMethods.RECT(x,y,w,h);
+            var windowHandle = NativeMethods.GetWindowHandle(this.processId);
+            
+            NativeMethods.GetClientRect(windowHandle, out WBounds);
+            hdc  = NativeMethods.GetDC(windowHandle);
+            solidBrush = NativeMethods.CreateSolidBrush(0x000000FF);
+            
+            
+            NativeMethods.WNDCLASSEX WClass = new NativeMethods.WNDCLASSEX();
+            WClass.cbSize = Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX));
+            WClass.style = 0;
+            WClass.lpfnWndProc =  lpfnWndProc;
+            WClass.cbClsExtra = 0;
+            WClass.cbWndExtra = 0;
+            WClass.hInstance = 0;
+            WClass.hIcon = 0;
+            WClass.hCursor = 0;
+            WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
+            WClass.lpszMenuName = " ";
+            WClass.lpszClassName = " ";
+            WClass.hIconSm = 0;
+            NativeMethods.RegisterClassExA(ref WClass);	
+            const uint WS_POPUP = 0x80000000;
+            const int LWA_COLORKEY = 0x01;
+
+            IntPtr Hinstance = new IntPtr(null);
+            EspHWND = NativeMethods.CreateWindowExA(NativeMethods.WS_EX_TRANSPARENT | NativeMethods.WS_EX_TOPMOST | NativeMethods.WS_EX_LAYERED, 
+                " ", " ", WS_POPUP, WBounds.Left, WBounds.Top, WBounds.Right - WBounds.Left, WBounds.Bottom + WBounds.Left,
+                new IntPtr(null), new IntPtr(null), Hinstance, new IntPtr(null));
+            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255,255,255).ToArgb(), 255, LWA_COLORKEY);
+            NativeMethods.ShowWindow(EspHWND, 1);
+            uint tmp;
+
+            NativeMethods.MSG Msg = default;
+            NativeMethods.CreateThread(IntPtr.Zero, 0, WorkLoop, IntPtr.Zero, 0, out tmp);
+            while (NativeMethods.GetMessageA(out Msg, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero) > 0) {
+                NativeMethods.TranslateMessage(out Msg);
+                NativeMethods.DispatchMessageA(out Msg);
+                Thread.Sleep(1);
+            }
+            
+            
+        }
+
+        private IntPtr EspHWND;
+        private IntPtr WorkLoop()
+        {
+            while (true) {
+                unsafe
+                {
+                    NativeMethods.InvalidateRect(EspHWND, WBounds, true);
+                    Thread.Sleep(16);
+                }
+            }
+            return IntPtr.Zero;
+        }
+
+       
+      
+
+        private static int WM_NCPAINT = 0x0085;
+        private static int WM_ERASEBKGND = 0x0014;
+        private static int WM_PAINT = 0x000F;
+        private IntPtr lpfnWndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam)
+        {
+            switch (msg)
+            {
+                case 0x000F : // WM_PAINT
+                {
+                    unsafe
+                    {
+                        NativeMethods.PAINTSTRUCT ps = default;
+                    
+                        IntPtr Memhdc;
+                        IntPtr hdc;
+                        IntPtr Membitmap;
+
+                        int win_width = WBounds.Right - WBounds.Left;
+                        int win_height = WBounds.Bottom + WBounds.Left;
+                    
+                        hdc = NativeMethods.BeginPaint(hwnd, ps);
+                        Memhdc = NativeMethods.CreateCompatibleDC(hdc);
+                        Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
+                        NativeMethods.SelectObject(Memhdc, Membitmap);
+                        NativeMethods.FillRect(Memhdc, WBounds, new IntPtr(NativeMethods.WHITE_BRUSH));
+                        
+                        
+                        var head = new NativeMethods.POINT();
+                        head.x = 200;
+                        head.y = 200;
+            
+           
+                        var foot = new NativeMethods.POINT();
+                        head.x = 200;
+                        head.y = 400;
+                        
+                        Draw(Memhdc, head, foot);
+                        Int32 SRCCOPY =		0x00CC0020;
+
+                        NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
+                        NativeMethods.DeleteObject(Membitmap);
+                        NativeMethods.DeleteDC(Memhdc);
+                        NativeMethods.DeleteDC(hdc);
+                        NativeMethods.EndPaint(hwnd, ref ps);
+                        NativeMethods.ValidateRect(hwnd, ref WBounds);
+
+                    }
+                }
+                break;
+                
+                case 0x0014: // WM_ERASEBKGND
+                    return new IntPtr(1);
+                case 0x0010: // WM_CLOSE
+                    NativeMethods.DestroyWindow(hwnd);
+                    break;
+                case 0x0002: // WM_DESTROY
+                    NativeMethods.PostQuitMessage(0);
+                    break;
+                default:
+                    return NativeMethods.DefWindowProc(hwnd, msg, wParam, lParam);
+            }
+
+            return new IntPtr(0);
+        }
+        // NativeMethods.PS_SOLID, 2, 0x000000FF
+        IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 1, Color.FromArgb(255,0,0).ToArgb());
+        
+        void Draw(IntPtr hdc,NativeMethods.POINT head,NativeMethods.POINT foot)
+        {
+            float height = head.y - foot.y;
+            float width = height / 2.4f;
+            NativeMethods.SelectObject(hdc, BoxPen);
+            NativeMethods.Rectangle(hdc, foot.x - (width / 2), foot.y, head.x + (width / 2), head.y);
+        }
+        protected virtual IntPtr OnWindowProc(IntPtr hWnd, UInt32 msg, UIntPtr wParam, IntPtr lParam)
+        {
+            return NativeMethods.DefWindowProcW(hWnd, msg, wParam, lParam);
+        }
+        
+        
     }
 }

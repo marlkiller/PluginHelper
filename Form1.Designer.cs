@@ -41,6 +41,8 @@
             this.btnRefresh = new System.Windows.Forms.Button();
             this.comboBoxProcessList = new System.Windows.Forms.ComboBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.comboBoxType = new System.Windows.Forms.ComboBox();
+            this.textMemAddr = new System.Windows.Forms.TextBox();
             this.btnReadMem = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.textBoxLog = new System.Windows.Forms.TextBox();
@@ -49,12 +51,14 @@
             this.btnMsgInject = new System.Windows.Forms.Button();
             this.btnInjectCode = new System.Windows.Forms.Button();
             this.textAsmCode = new System.Windows.Forms.TextBox();
-            this.textMemAddr = new System.Windows.Forms.TextBox();
-            this.comboBoxType = new System.Windows.Forms.ComboBox();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.btnGDI = new System.Windows.Forms.Button();
+            this.textBoxWinTitle = new System.Windows.Forms.TextBox();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl
@@ -62,6 +66,7 @@
             this.tabControl.Controls.Add(this.tabPage1);
             this.tabControl.Controls.Add(this.tabPage2);
             this.tabControl.Controls.Add(this.tabPage3);
+            this.tabControl.Controls.Add(this.tabPage4);
             this.tabControl.Location = new System.Drawing.Point(12, 12);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
@@ -182,6 +187,24 @@
             this.tabPage2.Text = "内存读写";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // comboBoxType
+            // 
+            this.comboBoxType.FormattingEnabled = true;
+            this.comboBoxType.Items.AddRange(new object[] {"数字", "字节", "字符串", "图片"});
+            this.comboBoxType.Location = new System.Drawing.Point(156, 28);
+            this.comboBoxType.Name = "comboBoxType";
+            this.comboBoxType.Size = new System.Drawing.Size(82, 20);
+            this.comboBoxType.TabIndex = 2;
+            this.comboBoxType.Text = "选择类型";
+            this.comboBoxType.SelectedIndexChanged += new System.EventHandler(this.comboBoxType_SelectedIndexChanged);
+            // 
+            // textMemAddr
+            // 
+            this.textMemAddr.Location = new System.Drawing.Point(27, 28);
+            this.textMemAddr.Name = "textMemAddr";
+            this.textMemAddr.Size = new System.Drawing.Size(123, 21);
+            this.textMemAddr.TabIndex = 1;
+            // 
             // btnReadMem
             // 
             this.btnReadMem.Location = new System.Drawing.Point(244, 29);
@@ -259,23 +282,34 @@
             this.textAsmCode.Size = new System.Drawing.Size(267, 291);
             this.textAsmCode.TabIndex = 0;
             // 
-            // textMemAddr
+            // tabPage4
             // 
-            this.textMemAddr.Location = new System.Drawing.Point(27, 28);
-            this.textMemAddr.Name = "textMemAddr";
-            this.textMemAddr.Size = new System.Drawing.Size(123, 21);
-            this.textMemAddr.TabIndex = 1;
+            this.tabPage4.Controls.Add(this.textBoxWinTitle);
+            this.tabPage4.Controls.Add(this.btnGDI);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Size = new System.Drawing.Size(448, 491);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "D3D";
+            this.tabPage4.UseVisualStyleBackColor = true;
             // 
-            // comboBoxType
+            // btnGDI
             // 
-            this.comboBoxType.FormattingEnabled = true;
-            this.comboBoxType.Items.AddRange(new object[] {"数字", "字节", "字符串", "图片"});
-            this.comboBoxType.Location = new System.Drawing.Point(156, 28);
-            this.comboBoxType.Name = "comboBoxType";
-            this.comboBoxType.Size = new System.Drawing.Size(82, 20);
-            this.comboBoxType.TabIndex = 2;
-            this.comboBoxType.Text = "选择类型";
-            this.comboBoxType.SelectedIndexChanged += new System.EventHandler(this.comboBoxType_SelectedIndexChanged);
+            this.btnGDI.Location = new System.Drawing.Point(23, 61);
+            this.btnGDI.Name = "btnGDI";
+            this.btnGDI.Size = new System.Drawing.Size(75, 23);
+            this.btnGDI.TabIndex = 0;
+            this.btnGDI.Text = "GDI绘制";
+            this.btnGDI.UseVisualStyleBackColor = true;
+            this.btnGDI.Click += new System.EventHandler(this.btnGDI_Click);
+            // 
+            // textBoxWinTitle
+            // 
+            this.textBoxWinTitle.Location = new System.Drawing.Point(23, 22);
+            this.textBoxWinTitle.Name = "textBoxWinTitle";
+            this.textBoxWinTitle.Size = new System.Drawing.Size(100, 21);
+            this.textBoxWinTitle.TabIndex = 1;
+            this.textBoxWinTitle.Text = "无标题 - 记事本";
             // 
             // Form1
             // 
@@ -294,8 +328,15 @@
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.TextBox textBoxWinTitle;
+
+        private System.Windows.Forms.Button btnGDI;
+        private System.Windows.Forms.TabPage tabPage4;
 
         private System.Windows.Forms.ComboBox comboBoxType;
 

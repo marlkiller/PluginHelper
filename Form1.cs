@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using PluginHelper.Entity;
 using PluginHelper.Handler;
@@ -144,6 +145,14 @@ namespace PluginHelper
     private void comboBoxType_SelectedIndexChanged(object sender, EventArgs e)
     {
       
+    }
+
+
+    private void btnGDI_Click(object sender, EventArgs e)
+    {
+      // pluginHelperService.drawGDI(200,300,400,500);
+      pluginHelperService.drawGDIPlus(200,300,400,500);
+
     }
   }
 }
