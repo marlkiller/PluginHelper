@@ -268,6 +268,8 @@ public struct WindowMessage
             public long hIconSm;
         }
         
+       
+        
         [DllImport("user32", EntryPoint="RegisterClassEx")]
         public static extern short RegisterClassExA(ref WNDCLASSEX pcWndClassEx);
         
@@ -629,7 +631,7 @@ public struct WindowMessage
             uint dwCreationFlags,
             out uint dwThreadId);
         
-        [DllImport("kernel32", ExactSpelling = true)]
+        [DllImport("user32", ExactSpelling = true)]
         public unsafe static extern Boolean InvalidateRect(IntPtr hWnd, RECT lpRect, Boolean bErase);
         //     hProcess 
         //          [输入] 进程句柄

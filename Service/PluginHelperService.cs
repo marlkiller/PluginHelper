@@ -512,6 +512,8 @@ namespace PluginHelper.Service
             WClass.hIcon = 0;
             WClass.hCursor = 0;
             WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
+            // WClass.hbrBackground = IntPtr.Zero;
+
             WClass.lpszMenuName = " ";
             WClass.lpszClassName = " ";
             WClass.hIconSm = 0;
@@ -541,66 +543,59 @@ namespace PluginHelper.Service
         private IntPtr EspHWND;
         private IntPtr WorkLoop()
         {
-            while (true) {
-                unsafe
-                {
-                    NativeMethods.InvalidateRect(EspHWND, WBounds, true);
-                    Thread.Sleep(16);
-                }
+            while (true)
+            {
+                NativeMethods.InvalidateRect(EspHWND, WBounds, true);
+                Thread.Sleep(16);
             }
             return IntPtr.Zero;
         }
 
        
-      
 
         private static int WM_NCPAINT = 0x0085;
         private static int WM_ERASEBKGND = 0x0014;
-        private static int WM_PAINT = 0x000F;
+        private static int WM_PAINT = (0x000F);
         private IntPtr lpfnWndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam)
         {
             switch (msg)
             {
                 case 0x000F : // WM_PAINT
                 {
-                    unsafe
-                    {
-                        NativeMethods.PAINTSTRUCT ps = default;
+                    NativeMethods.PAINTSTRUCT ps = default;
                     
-                        IntPtr Memhdc;
-                        IntPtr hdc;
-                        IntPtr Membitmap;
+                    IntPtr Memhdc;
+                    IntPtr hdc;
+                    IntPtr Membitmap;
 
-                        int win_width = WBounds.Right - WBounds.Left;
-                        int win_height = WBounds.Bottom + WBounds.Left;
+                    int win_width = WBounds.Right - WBounds.Left;
+                    int win_height = WBounds.Bottom + WBounds.Left;
                     
-                        hdc = NativeMethods.BeginPaint(hwnd, ps);
-                        Memhdc = NativeMethods.CreateCompatibleDC(hdc);
-                        Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
-                        NativeMethods.SelectObject(Memhdc, Membitmap);
-                        NativeMethods.FillRect(Memhdc, WBounds, new IntPtr(NativeMethods.WHITE_BRUSH));
+                    hdc = NativeMethods.BeginPaint(hwnd, ps);
+                    Memhdc = NativeMethods.CreateCompatibleDC(hdc);
+                    Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
+                    NativeMethods.SelectObject(Memhdc, Membitmap);
+                    NativeMethods.FillRect(Memhdc, WBounds, new IntPtr(NativeMethods.WHITE_BRUSH));
                         
                         
-                        var head = new NativeMethods.POINT();
-                        head.x = 200;
-                        head.y = 200;
+                    var head = new NativeMethods.POINT();
+                    head.x = 200;
+                    head.y = 200;
             
            
-                        var foot = new NativeMethods.POINT();
-                        head.x = 200;
-                        head.y = 400;
+                    var foot = new NativeMethods.POINT();
+                    head.x = 200;
+                    head.y = 400;
                         
-                        Draw(Memhdc, head, foot);
-                        Int32 SRCCOPY =		0x00CC0020;
+                    Draw(Memhdc, head, foot);
+                    Int32 SRCCOPY =		0x00CC0020;
 
-                        NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
-                        NativeMethods.DeleteObject(Membitmap);
-                        NativeMethods.DeleteDC(Memhdc);
-                        NativeMethods.DeleteDC(hdc);
-                        NativeMethods.EndPaint(hwnd, ref ps);
-                        NativeMethods.ValidateRect(hwnd, ref WBounds);
-
-                    }
+                    NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
+                    NativeMethods.DeleteObject(Membitmap);
+                    NativeMethods.DeleteDC(Memhdc);
+                    NativeMethods.DeleteDC(hdc);
+                    NativeMethods.EndPaint(hwnd, ref ps);
+                    NativeMethods.ValidateRect(hwnd, ref WBounds);
                 }
                 break;
                 
