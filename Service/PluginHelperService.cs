@@ -514,12 +514,13 @@ namespace PluginHelper.Service
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
             // WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
-             WClass.hIcon = IntPtr.Zero;
-             WClass.hCursor = new IntPtr(0);
-             WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
+            WClass.hIcon = IntPtr.Zero;
+            WClass.hCursor = new IntPtr(0);
+            WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
             WClass.lpszMenuName = "this is lpszMenuName";
             WClass.lpszClassName = className;
-             WClass.hIconSm = new IntPtr(0);
+            WClass.hIconSm = new IntPtr(0);
+            
             ushort registerClassEx = NativeMethods.RegisterClassEx(WClass);
             if(registerClassEx == 0)
             {
@@ -582,7 +583,7 @@ namespace PluginHelper.Service
                 fixed (NativeMethods.RECT* dev = &WBounds)
                 {
                     NativeMethods.InvalidateRect(EspHWND, dev, true);
-                    Thread.Sleep(16);
+                    // Thread.Sleep(16);
                 }
             }
             return IntPtr.Zero;
@@ -599,7 +600,7 @@ namespace PluginHelper.Service
                 point.Y = WBounds.top;
                 NativeMethods.ClientToScreen(GameHWND, ref point);
                 NativeMethods.MoveWindow(EspHWND, point.X, point.Y, WBounds.right, WBounds.bottom, true);
-                Thread.Sleep(1000);
+                // Thread.Sleep(1000);
             }
             return IntPtr.Zero;
         }

@@ -471,8 +471,7 @@ public struct WindowMessage
         // public static extern IntPtr BeginPaint(IntPtr hWnd, [In, Out]  NativeMethods.PAINTSTRUCT lpPaint);
        
         [DllImport("User32", ExactSpelling = true)]
-        public static extern IntPtr BeginPaint(IntPtr hWnd, ref PAINTSTRUCT lpPaint);
-       
+        public static extern IntPtr BeginPaint(IntPtr hWnd,  [In, Out]  ref PAINTSTRUCT lpPaint);
         
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
