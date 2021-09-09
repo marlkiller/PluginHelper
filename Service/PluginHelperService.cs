@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -491,135 +492,148 @@ namespace PluginHelper.Service
             NativeMethods.FillRect(hdc, ref rect, solidBrush);
         }
 
-        private static NativeMethods.RECT WBounds = default;
-
+        IntPtr GameHWND;
+        private NativeMethods.RECT WBounds = default;
+        public IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 1,  Color.FromArgb(255,0,0).ToArgb());
+        public IntPtr EspHWND;
         public unsafe void drawGDIPlus(int x,int y,int w,int h)
         {
             
-            var rect = new NativeMethods.RECT(x,y,w,h);
-            var windowHandle = NativeMethods.GetWindowHandle(this.processId);
+            GameHWND = NativeMethods.GetWindowHandle(this.processId);
+            if (NativeMethods.GetClientRect(GameHWND, ref WBounds))
+            {
+                // throw new Win32Exception("GetClientRect exception");
+            }
 
-            MessageBox.Show("windowHandle" + windowHandle.ToString("x"));
-            
-            // top和left都为0；
-            NativeMethods.GetClientRect(windowHandle, ref WBounds);
-
-            // MessageBox.Show(string.Format(@"{0},{1},{2},{3},{4},{5}", WBounds.bottom, WBounds.left, WBounds.right, WBounds.top, WBounds.Height,
-            //     WBounds.Width));
-            
-            
-            hdc  = NativeMethods.GetDC(windowHandle);
-            solidBrush = NativeMethods.CreateSolidBrush(0x000000FF);
-
-            var windowLong = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
-            MessageBox.Show("windowLong" + windowHandle.ToString("x"));
-
-            
+            string className = "MainWindowMainWindow";
             
             NativeMethods.WNDCLASSEX_D WClass = new NativeMethods.WNDCLASSEX_D();
-            WClass.cbSize = Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX_D));
+            WClass.cbSize =   Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX_D));
             WClass.style = 0;
             WClass.lpfnWndProc =  lpfnWndProc;
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
-            WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
-            WClass.hIcon = new IntPtr(0);
-            WClass.hCursor = new IntPtr(0);
-            WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
-            // WClass.hbrBackground = IntPtr.Zero;
-
-            WClass.lpszMenuName = " this is lpszMenuName";
-            WClass.lpszClassName = " this is lpszClassName";
-            WClass.hIconSm = new IntPtr(0);
-            NativeMethods.RegisterClassEx(WClass);	
+            // WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
+             WClass.hIcon = IntPtr.Zero;
+             WClass.hCursor = new IntPtr(0);
+             WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
+            WClass.lpszMenuName = "this is lpszMenuName";
+            WClass.lpszClassName = className;
+             WClass.hIconSm = new IntPtr(0);
+            ushort registerClassEx = NativeMethods.RegisterClassEx(WClass);
+            if(registerClassEx == 0)
+            {
+                throw new Win32Exception("registerClassEx exception");
+            }
             const int LWA_COLORKEY = 0x01;
-
             IntPtr Hinstance = new IntPtr(null);
-                
             EspHWND = NativeMethods.CreateWindowExW(NativeMethods.WS_EX.TRANSPARENT | NativeMethods.WS_EX.TOPMOST | NativeMethods.WS_EX.LAYERED, 
-                " ", " ", NativeMethods.WS.POPUP, WBounds.left, WBounds.top, WBounds.right - WBounds.left, WBounds.bottom + WBounds.left,
+                className, "this is lpWindowsName", NativeMethods.WS.POPUP, 0, 0, WBounds.right, WBounds.bottom,
                 new IntPtr(null), new IntPtr(null), Hinstance, new IntPtr(null));
             
-            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255,255,255).ToArgb(), 255, LWA_COLORKEY);
-            NativeMethods.ShowWindow(EspHWND, 1);
-            uint tmp;
+            if (EspHWND==IntPtr.Zero)
+            {
+                throw new Win32Exception("CreateWindowExW exception");
+            }
+            
+            // if (NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255,255,255).ToArgb(), 255, LWA_COLORKEY)==0)
+            // {
+            //     throw new Win32Exception("SetLayeredWindowAttributes exception");
+            //
+            // }
+            if (NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(0,0,0).ToArgb(), 255, 0x00000002)==0)
+            {
+                throw new Win32Exception("SetLayeredWindowAttributes exception");
 
+            }
+            
+            if (NativeMethods.ShowWindow(EspHWND, 1))
+            {
+                throw new Win32Exception("ShowWindow exception");
+
+            }
+            uint tmp;
             NativeMethods.MSG Msg = default;
-            NativeMethods.CreateThread(IntPtr.Zero, 0, WorkLoop, IntPtr.Zero, 0, out tmp);
+            
+            if (NativeMethods.CreateThread(IntPtr.Zero, 0, MovWindow, IntPtr.Zero, 0,  0)==IntPtr.Zero)
+            {
+                throw new Win32Exception("CreateThread exception");
+            }
+
+            
+            if (NativeMethods.CreateThread(IntPtr.Zero, 0, WorkLoop, IntPtr.Zero, 0,  0)==IntPtr.Zero)
+            {
+                throw new Win32Exception("CreateThread exception");
+            }
+            
+            
             while (NativeMethods.GetMessageW(ref Msg, IntPtr.Zero, 0, 0) > 0) {
                 NativeMethods.TranslateMessage(ref Msg);
                 NativeMethods.DispatchMessageW(ref Msg);
                 Thread.Sleep(1);
             }
             
-            
         }
 
-        private IntPtr EspHWND;
-        private IntPtr WorkLoop()
+        private unsafe IntPtr WorkLoop()
         {
             while (true)
             {
-                NativeMethods.InvalidateRect(EspHWND, WBounds, true);
-                Thread.Sleep(16);
+                fixed (NativeMethods.RECT* dev = &WBounds)
+                {
+                    NativeMethods.InvalidateRect(EspHWND, dev, true);
+                    Thread.Sleep(16);
+                }
             }
             return IntPtr.Zero;
         }
 
-       
+        private unsafe IntPtr MovWindow()
+        {
+            while (true)
+            {
+                
+                NativeMethods.GetClientRect(GameHWND, ref WBounds);
+                System.Drawing.Point point = new System.Drawing.Point ();
+                point.X = WBounds.left;
+                point.Y = WBounds.top;
+                NativeMethods.ClientToScreen(GameHWND, ref point);
+                NativeMethods.MoveWindow(EspHWND, point.X, point.Y, WBounds.right, WBounds.bottom, true);
+                Thread.Sleep(1000);
+            }
+            return IntPtr.Zero;
+        }
+
+
 
         private static int WM_NCPAINT = 0x0085;
         private static int WM_ERASEBKGND = 0x0014;
         private static int WM_PAINT = (0x000F);
-        private unsafe IntPtr lpfnWndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam)
+        private unsafe int lpfnWndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
+              
+            IntPtr Memhdc;
+            IntPtr hdc;
+            IntPtr Membitmap;
             switch (msg)
             {
                 case 0x000F : // WM_PAINT
                 {
 
                     NativeMethods.PAINTSTRUCT ps = default;
-                    
-                    IntPtr Memhdc;
-                    IntPtr hdc;
-                    IntPtr Membitmap;
-
-                    
-                    // WBounds.bottom, WBounds.left, WBounds.right
-                    // 762,0,1472,0
-                    int win_width = WBounds.right - WBounds.left; // 1472-0=1472
-                    int win_height = WBounds.bottom + WBounds.left; // 762+0=762
-                    
-                    // int win_width =1000;
-                    // int win_height = 2000;
-
-                    // 将窗口需要重绘的区域设置为空
                     hdc = NativeMethods.BeginPaint(hwnd, ref ps);
-                    
-                    // 在窗口的DC之外，可以建立自己的DC，就是说它不对应窗口，这个方法就是CreateCompatibleDC，这个DC就是一个内存缓冲区
-                    Memhdc = NativeMethods.CreateCompatibleDC(hdc);
-                    
-                    // 该函数创建与指定的设备环境相关的设备兼容的位图
 
+                    int win_width = WBounds.right - WBounds.left;
+                    int win_height = WBounds.bottom + WBounds.left;
+                    
+                    Memhdc = NativeMethods.CreateCompatibleDC(hdc);
                     Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
                     NativeMethods.SelectObject(Memhdc, Membitmap);
                     NativeMethods.FillRect(Memhdc, ref WBounds, new IntPtr(NativeMethods.WHITE_BRUSH));
                         
-                        
-                    var head = new NativeMethods.POINT();
-                    head.x = 200;
-                    head.y = 200;
-            
-           
-                    var foot = new NativeMethods.POINT();
-                    head.x = 200;
-                    head.y = 400;
-                        
-                    // Draw(hdc, head, foot);
-                    Draw(Memhdc, head, foot);
+                    Draw(Memhdc, 200, 100,400,200);
 
                     Int32 SRCCOPY = 0x00CC0020;
-
                     // Bitblt作用将某一内存块的数据传送到另一内存块
                     NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
                     NativeMethods.DeleteObject(Membitmap);
@@ -637,7 +651,7 @@ namespace PluginHelper.Service
                 break;
                 
                 case 0x0014: // WM_ERASEBKGND
-                    return new IntPtr(1);
+                    return 1;
                 case 0x0010: // WM_CLOSE
                     NativeMethods.DestroyWindow(hwnd);
                     break;
@@ -648,17 +662,13 @@ namespace PluginHelper.Service
                     return NativeMethods.DefWindowProc(hwnd, msg, wParam, lParam);
             }
 
-            return new IntPtr(0);
+            return 0;
         }
-        // NativeMethods.PS_SOLID, 2, 0x000000FF
-        IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 1, Color.FromArgb(255,0,0).ToArgb());
         
-        void Draw(IntPtr hdc,NativeMethods.POINT head,NativeMethods.POINT foot)
+        void Draw(IntPtr hdc,int x,int y,int w,int h)
         {
-            // float height = head.y - foot.y;
-            // float width = height / 2.4f;
             NativeMethods.SelectObject(hdc, BoxPen);
-            NativeMethods.Rectangle(hdc, 100, 100, 500, 500);
+            NativeMethods.Rectangle(hdc, x, y, w, h);
         }
         
     }

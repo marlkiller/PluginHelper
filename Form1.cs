@@ -150,10 +150,10 @@ namespace PluginHelper
 
     private void btnGDI_Click(object sender, EventArgs e)
     {
-      // pluginHelperService.drawGDI(200,300,400,500);
 
       try
       {
+        // pluginHelperService.drawGDI(200,300,400,500);
         pluginHelperService.drawGDIPlus(200,300,400,500);
 
       }

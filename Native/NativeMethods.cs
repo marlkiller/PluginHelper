@@ -251,7 +251,7 @@ public struct WindowMessage
             public IntPtr lParam { set; get; }
         }
 
-        public delegate IntPtr WndProc(IntPtr hWnd, Int32 msg, IntPtr wParam, IntPtr lParam);
+        public delegate int WndProc(IntPtr hWnd, uint  msg, IntPtr wParam, IntPtr lParam);
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public class WNDCLASSEX_D
@@ -275,11 +275,55 @@ public struct WindowMessage
         [DllImport("user32", EntryPoint="RegisterClassEx", CharSet=CharSet.Unicode, SetLastError=true, BestFitMapping=false)]
         internal static extern UInt16 RegisterClassEx(NativeMethods.WNDCLASSEX_D wc_d);
         
+        
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        public delegate int WNDPROC(IntPtr hwnd, uint uMsg, IntPtr wParam, IntPtr lParam);
+        
+        
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct HINSTANCE
+        {
+            public IntPtr ptr;
+        }
+        
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct HICON
+        {
+            public IntPtr ptr;
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct HBRUSH
+        {
+            public IntPtr ptr;
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct WNDCLASSEXW
+        {
+
+            public uint cbSize;
+            public uint style;
+            public WNDPROC lpfnWndProc;
+            public int cbClsExtra;
+            public int cbWndExtra;
+            public HINSTANCE hInstance;
+            public HICON hIcon;
+            public HICON hCursor;
+            public HBRUSH hbrBackground;
+            [MarshalAs(UnmanagedType.LPWStr)] public string lpszMenuName;
+            [MarshalAs(UnmanagedType.LPWStr)] public string lpszClassName;
+            public HICON hIconSm;
+        }
+        
+        [DllImport("user32.dll")]
+        public static extern ushort RegisterClassExW(
+            ref WNDCLASSEXW __param__0
+        );
+        
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr DefWindowProcW(IntPtr hWnd, UInt32 msg, UIntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", EntryPoint = "DefWindowProcW")]
-        internal static extern IntPtr DefWindowProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
+        internal static extern int DefWindowProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         public static extern bool DestroyWindow(IntPtr hWnd);
         [DllImport("user32.dll")]
@@ -403,31 +447,32 @@ public struct WindowMessage
         public static extern int SetLayeredWindowAttributes(IntPtr Handle, int crKey, byte bAlpha, int dwFlags);
         [DllImport("user32.dll", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         public static extern bool ShowWindow(IntPtr hWnd, int cmdShow);
+        
+        
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct HDC
+        {
+
+            public IntPtr ptr;
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public unsafe struct PAINTSTRUCT
         {
-            public IntPtr   hdc;
-            public bool     fErase;
-            // rcPaint was a by-value RECT structure
-            public int      rcPaint_left;
-            public int      rcPaint_top;
-            public int      rcPaint_right;
-            public int      rcPaint_bottom;
-            public bool     fRestore;
-            public bool     fIncUpdate;
-            public int      reserved1;
-            public int      reserved2;
-            public int      reserved3;
-            public int      reserved4;
-            public int      reserved5;
-            public int      reserved6;
-            public int      reserved7;
-            public int      reserved8;
+            public HDC hdc;
+            public int fErase;
+            public RECT rcPaint;
+            public int fRestore;
+            public int fIncUpdate;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)] public byte[] rgbReserved;
         }
         
         
-        [DllImport("User32", ExactSpelling = true, EntryPoint = "BeginPaint", CharSet = CharSet.Auto)]
-        public static extern IntPtr BeginPaint(IntPtr hWnd, [In, Out] ref NativeMethods.PAINTSTRUCT lpPaint);
-
+        // [DllImport("User32", ExactSpelling = true, EntryPoint = "BeginPaint", CharSet = CharSet.Auto)]
+        // public static extern IntPtr BeginPaint(IntPtr hWnd, [In, Out]  NativeMethods.PAINTSTRUCT lpPaint);
+       
+        [DllImport("User32", ExactSpelling = true)]
+        public static extern IntPtr BeginPaint(IntPtr hWnd, ref PAINTSTRUCT lpPaint);
+       
         
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
@@ -503,6 +548,12 @@ public struct WindowMessage
         public static extern bool MoveToEx( IntPtr hDC, int xStart, int yStart, IntPtr prevPoint );
         [DllImport( "gdi32.dll" )]
         public static extern IntPtr SelectObject( IntPtr hDC, IntPtr hObject );
+        
+        [DllImport("user32.dll")]
+        public static extern bool ClientToScreen(IntPtr hWnd, ref Point lpPoint);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool BRePaint);
         
         [DllImport( "gdi32.dll" )]
         public static extern Boolean BitBlt( IntPtr hDC, int x,int y,int w,int h,IntPtr srcDc,int xSrc,int ySrc,int dwRop );
@@ -840,10 +891,10 @@ public struct WindowMessage
             // IntPtr lpStartAddress, // ThreadProc as friendly delegate
             IntPtr lpParameter,
             uint dwCreationFlags,
-            out uint dwThreadId);
+             uint dwThreadId);
         
         [DllImport("user32", ExactSpelling = true)]
-        public static extern Boolean InvalidateRect(IntPtr hWnd, RECT lpRect, Boolean bErase);
+        public static extern unsafe Boolean InvalidateRect(IntPtr hWnd, RECT* lpRect, Boolean bErase);
         //     hProcess 
         //          [输入] 进程句柄
         //     lpThreadAttributes 
