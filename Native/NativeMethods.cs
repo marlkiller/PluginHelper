@@ -455,23 +455,29 @@ public struct WindowMessage
 
             public IntPtr ptr;
         }
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        [StructLayout(LayoutKind.Sequential)]
         public unsafe struct PAINTSTRUCT
         {
-            public HDC hdc;
-            public int fErase;
+            public IntPtr hdc;
+            public Boolean fErase;
             public RECT rcPaint;
-            public int fRestore;
-            public int fIncUpdate;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)] public byte[] rgbReserved;
+            public Boolean fRestore;
+            public Boolean fIncUpdate;
+            public fixed byte rgbReserved[32];
         }
         
         
         // [DllImport("User32", ExactSpelling = true, EntryPoint = "BeginPaint", CharSet = CharSet.Auto)]
-        // public static extern IntPtr BeginPaint(IntPtr hWnd, [In, Out]  NativeMethods.PAINTSTRUCT lpPaint);
+        // public static extern IntPtr BeginPaint(IntPtr hWnd, [In, Out] [In, Out]  ref NativeMethods.PAINTSTRUCT lpPaint);
        
         [DllImport("User32", ExactSpelling = true)]
-        public static extern IntPtr BeginPaint(IntPtr hWnd,  [In, Out]  ref PAINTSTRUCT lpPaint);
+        public static extern IntPtr BeginPaint(IntPtr hWnd, ref PAINTSTRUCT lpPaint);
+        public static IntPtr BeginPaint(HandleRef hWnd, ref PAINTSTRUCT lpPaint)
+        {
+            IntPtr result = BeginPaint(hWnd.Handle, ref lpPaint);
+            GC.KeepAlive(hWnd.Wrapper);
+            return result;
+        }
         
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateCompatibleDC(IntPtr hdc);

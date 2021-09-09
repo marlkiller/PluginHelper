@@ -511,6 +511,8 @@ namespace PluginHelper.Service
             WClass.cbSize =   Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX_D));
             WClass.style = 0;
             WClass.lpfnWndProc =  lpfnWndProc;
+            // WClass.lpfnWndProc =  Marshal.GetFunctionPointerForDelegate((Delegate) (NativeMethods.WndProc) lpfnWndProc);;
+
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
             // WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
@@ -542,15 +544,16 @@ namespace PluginHelper.Service
             //     throw new Win32Exception("SetLayeredWindowAttributes exception");
             //
             // }
+            
             if (NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(0,0,0).ToArgb(), 255, 0x00000002)==0)
             {
-                throw new Win32Exception("SetLayeredWindowAttributes exception");
+                //throw new Win32Exception("SetLayeredWindowAttributes exception");
 
             }
             
             if (NativeMethods.ShowWindow(EspHWND, 1))
             {
-                throw new Win32Exception("ShowWindow exception");
+                // throw new Win32Exception(Marshal.GetLastWin32Error());
 
             }
             uint tmp;
@@ -558,19 +561,19 @@ namespace PluginHelper.Service
             
             if (NativeMethods.CreateThread(IntPtr.Zero, 0, MovWindow, IntPtr.Zero, 0,  0)==IntPtr.Zero)
             {
-                throw new Win32Exception("CreateThread exception");
+                // throw new Win32Exception("CreateThread exception");
             }
 
             
             if (NativeMethods.CreateThread(IntPtr.Zero, 0, WorkLoop, IntPtr.Zero, 0,  0)==IntPtr.Zero)
             {
-                throw new Win32Exception("CreateThread exception");
+                // throw new Win32Exception(Marshal.GetLastWin32Error());
             }
             
             
             while (NativeMethods.GetMessageW(ref Msg, IntPtr.Zero, 0, 0) > 0) {
-                NativeMethods.TranslateMessage(ref Msg);
-                NativeMethods.DispatchMessageW(ref Msg);
+                var translateMessage = NativeMethods.TranslateMessage(ref Msg);
+                var dispatchMessageW = NativeMethods.DispatchMessageW(ref Msg);
                 Thread.Sleep(1);
             }
             
@@ -582,8 +585,8 @@ namespace PluginHelper.Service
             {
                 fixed (NativeMethods.RECT* dev = &WBounds)
                 {
-                    NativeMethods.InvalidateRect(EspHWND, dev, true);
-                    // Thread.Sleep(16);
+                    Boolean flag = NativeMethods.InvalidateRect(EspHWND, dev, true);
+                    Thread.Sleep(16);
                 }
             }
             return IntPtr.Zero;
@@ -621,7 +624,10 @@ namespace PluginHelper.Service
                 case 0x000F : // WM_PAINT
                 {
 
+                    // https://www.cnblogs.com/zhoug2020/p/5622136.html
                     NativeMethods.PAINTSTRUCT ps = default;
+                    
+                    // TODO ps.handle 是否等于 hdc
                     hdc = NativeMethods.BeginPaint(hwnd, ref ps);
 
                     int win_width = WBounds.right - WBounds.left;
@@ -630,7 +636,7 @@ namespace PluginHelper.Service
                     Memhdc = NativeMethods.CreateCompatibleDC(hdc);
                     Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
                     NativeMethods.SelectObject(Memhdc, Membitmap);
-                    NativeMethods.FillRect(Memhdc, ref WBounds, new IntPtr(NativeMethods.WHITE_BRUSH));
+                    NativeMethods.FillRect(Memhdc, ref WBounds, new IntPtr(0xF800));
                         
                     Draw(Memhdc, 200, 100,400,200);
 
