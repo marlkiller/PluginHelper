@@ -17,7 +17,7 @@ namespace PluginHelper
 {
   public partial class Form1 : Form
   {
-    private PluginHelperService pluginHelperService = new PluginHelperService();
+    private PluginHelperService pluginHelperService = new();
 
     
     public void consoleLog(object sender, LogEventHandler handler)
@@ -152,14 +152,24 @@ namespace PluginHelper
     {
       pluginHelperService.drawGDIPlus(200,300,400,500);
     }
-    GameEspForm gameEspForm = new();
+    GameEspForm gameEspForm ;
 
     private void btnNetGdi_Click(object sender, EventArgs e)
     {
-      gameEspForm.Show();
-      Random rd = new Random();
-      gameEspForm.Drawing(new Rectangle(10 ,10,200 + rd.Next(1,100),200 + rd.Next(1,100)), Color.Red);
+      if (gameEspForm == null)
+      {
+        gameEspForm = new GameEspForm();
+        gameEspForm.prosessId = pluginHelperService.processId;
+      }
 
+      if (!gameEspForm.thread.IsAlive)
+      {
+        gameEspForm.thread.Start(new object());
+      }
+      else
+      {
+        gameEspForm.thread.Abort();
+      }
     }
 
   }
