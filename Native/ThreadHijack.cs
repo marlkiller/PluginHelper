@@ -260,7 +260,6 @@ namespace PluginHelper.Native
 		
 		// Write shellcode within process
 
-		IntPtr bytesWritten;
         Boolean writeBytes = MemUtil.WriteBytes(procHandle,allocMemAddress,shellcode,shellcode.Length);
 
 		// Read memory to view shellcode

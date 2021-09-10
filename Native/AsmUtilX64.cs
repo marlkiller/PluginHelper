@@ -94,7 +94,7 @@ namespace PluginHelper.Native
             Add_ESP(address);
         }
 
-        public byte[] inBytes()
+        public new byte[] inBytes()
         {
             byte[] reAsmCode = new byte[Asmcode.Length / 2];
 

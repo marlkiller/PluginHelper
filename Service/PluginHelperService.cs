@@ -4,15 +4,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using PluginHelper.Entity;
 using PluginHelper.Handler;
 using PluginHelper.Native;
-using TextBox = System.Windows.Forms.TextBox;
 
 namespace PluginHelper.Service
 {
@@ -31,7 +28,6 @@ namespace PluginHelper.Service
             {
                 try
                 {
-
                     if (process.ProcessName=="System" || process.ProcessName=="Idle")
                     {
                         continue;
@@ -184,8 +180,6 @@ namespace PluginHelper.Service
 
         public bool codeInject(string asmCodeStr)
         {
-            
-          
             return true;
         }
 
@@ -459,24 +453,22 @@ namespace PluginHelper.Service
 
                 // 整个窗口画大圈
                 DrawBorderBox(0,0,rect.Width-50,rect.Height-110,5);
-
                 // 画小圈
                 DrawBorderBox(50,50,200,100,5);
-                
-                // 删除刷子 
-                NativeMethods.DeleteObject(NativeMethods.SelectObject(hdc, solidBrush));
                 // 画一条线
                 DrawLine(50, 50, 250, 150);
             }            
            
         }
+        
+        IntPtr hNPen = NativeMethods.CreatePen(NativeMethods.PenStyle.PS_SOLID, 2, 0x000000FF);
+
         void DrawLine(int StartX, int StartY, int EndX, int EndY)
         {
-            var hNPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 2, 0x000000FF);
-            NativeMethods.SelectObject(hdc, hNPen);
+            var oldPen = NativeMethods.SelectObject(hdc, hNPen);
             NativeMethods.MoveToEx(hdc, StartX, StartY, IntPtr.Zero); //start
             NativeMethods.LineTo(hdc, EndX, EndY); //end
-            NativeMethods.DeleteObject(NativeMethods.SelectObject(hdc, hNPen));
+            NativeMethods.DeleteObject(NativeMethods.SelectObject(hdc, oldPen));
         }
         void DrawBorderBox(int x, int y, int w, int h, int thickness)
         {
@@ -495,7 +487,6 @@ namespace PluginHelper.Service
         IntPtr GameHWND;
         private NativeMethods.RECT WBounds = default;
         public IntPtr EspHWND;
-
 
         public unsafe void drawGDIPlus(int x,int y,int w,int h)
         {
@@ -539,17 +530,13 @@ namespace PluginHelper.Service
                 throw new Win32Exception("CreateWindowExW exception");
             }
           
-            const int LWA_COLORKEY = 0x01;
-            const int LWA_ALPHA = 0x00000002;
-            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, LWA_COLORKEY);
-            // NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(0, 0, 0).ToArgb(), 255, LWA_ALPHA);
+            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_COLORKEY);
+            // NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(0, 0, 0).ToArgb(), 255, NativeMethods.LWA_ALPHA);
 
             NativeMethods.ShowWindow(EspHWND, 1);
             NativeMethods.UpdateWindow(EspHWND);
 
-            uint tmp;
             NativeMethods.MSG Msg = default;
-            
             if (NativeMethods.CreateThread(IntPtr.Zero, 0, MovWindow, IntPtr.Zero, 0,  0)==IntPtr.Zero)
             {
                 // throw new Win32Exception("CreateThread exception");
@@ -560,7 +547,6 @@ namespace PluginHelper.Service
             {
                 // throw new Win32Exception(Marshal.GetLastWin32Error());
             }
-            
             
             while (NativeMethods.GetMessageW(ref Msg, IntPtr.Zero, 0, 0)) {
                 NativeMethods.TranslateMessage(ref Msg);
@@ -591,22 +577,16 @@ namespace PluginHelper.Service
             {
                 
                 NativeMethods.GetClientRect(GameHWND, ref WBounds);
-                System.Drawing.Point point = new System.Drawing.Point ();
+                Point point = new Point ();
                 point.X = WBounds.left;
                 point.Y = WBounds.top;
                 NativeMethods.ClientToScreen(GameHWND, ref point);
                 NativeMethods.MoveWindow(EspHWND, point.X, point.Y, WBounds.right, WBounds.bottom, true);
                 Thread.Sleep(1000);
             }
-            return IntPtr.Zero;
         }
 
-
-
-        private static int WM_NCPAINT = 0x0085;
-        private static int WM_ERASEBKGND = 0x0014;
-        private static int WM_PAINT = (0x000F);
-        private  int lpfnWndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
+        private  int lpfnWndProc(IntPtr hwnd, NativeMethods.WindowsMessage msg, IntPtr wParam, IntPtr lParam)
         {
               
             IntPtr Memhdc;
@@ -614,7 +594,7 @@ namespace PluginHelper.Service
             IntPtr Membitmap;
             switch (msg)
             {
-                case 0x000F : // WM_PAINT
+                case NativeMethods.WindowsMessage.WM_PAINT : // WM_PAINT
                 {
 
                     // https://www.cnblogs.com/zhoug2020/p/5622136.html
@@ -622,7 +602,7 @@ namespace PluginHelper.Service
                     {
                         unsafe
                         {
-                            IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 1, (uint)ColorTranslator.ToWin32(Color.Red));
+                            IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PenStyle.PS_SOLID, 1, (uint)ColorTranslator.ToWin32(Color.Red));
 
                             NativeMethods.PAINTSTRUCT ps;
                             hdc = NativeMethods.BeginPaint(hwnd, out ps);
@@ -663,12 +643,12 @@ namespace PluginHelper.Service
                     return 0;
                 }
                 
-                case 0x0014: // WM_ERASEBKGND
+                case NativeMethods.WindowsMessage.WM_ERASEBKGND: // WM_ERASEBKGND
                     return 1;
-                case 0x0010: // WM_CLOSE
+                case NativeMethods.WindowsMessage.WM_CLOSE: // WM_CLOSE
                     NativeMethods.DestroyWindow(hwnd);
                     break;
-                case 0x0002: // WM_DESTROY
+                case NativeMethods.WindowsMessage.WM_DESTROY: // WM_DESTROY
                     NativeMethods.PostQuitMessage(0);
                     break;
                 default:

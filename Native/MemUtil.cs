@@ -10,8 +10,8 @@ namespace PluginHelper.Native
 	    
 	  
 	    
-        private readonly IntPtr _processHwnd;
-        private readonly IntPtr _threadId;
+        // private readonly IntPtr _processHwnd;
+        // private readonly IntPtr _threadId;
         
         public const byte ASCII_CHAR_LENGTH = 1;
         public const byte UNICODE_CHAR_LENGTH = 2;
@@ -551,7 +551,6 @@ namespace PluginHelper.Native
 			catch(Exception e)
 			{
 				throw e;
-				return false;
 			}
 			finally
 			{
