@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -151,5 +152,15 @@ namespace PluginHelper
     {
       pluginHelperService.drawGDIPlus(200,300,400,500);
     }
+    GameEspForm gameEspForm = new();
+
+    private void btnNetGdi_Click(object sender, EventArgs e)
+    {
+      gameEspForm.Show();
+      Random rd = new Random();
+      gameEspForm.Drawing(new Rectangle(10 ,10,200 + rd.Next(1,100),200 + rd.Next(1,100)), Color.Red);
+
+    }
+
   }
 }

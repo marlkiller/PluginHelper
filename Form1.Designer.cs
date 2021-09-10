@@ -54,6 +54,7 @@
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.btnGdi = new System.Windows.Forms.Button();
             this.btnGdiPlu = new System.Windows.Forms.Button();
+            this.btnNetGdi = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -283,6 +284,7 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.btnNetGdi);
             this.tabPage4.Controls.Add(this.btnGdi);
             this.tabPage4.Controls.Add(this.btnGdiPlu);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
@@ -294,7 +296,7 @@
             // 
             // btnGdi
             // 
-            this.btnGdi.Location = new System.Drawing.Point(24, 28);
+            this.btnGdi.Location = new System.Drawing.Point(152, 71);
             this.btnGdi.Name = "btnGdi";
             this.btnGdi.Size = new System.Drawing.Size(91, 23);
             this.btnGdi.TabIndex = 2;
@@ -304,13 +306,23 @@
             // 
             // btnGdiPlu
             // 
-            this.btnGdiPlu.Location = new System.Drawing.Point(121, 28);
+            this.btnGdiPlu.Location = new System.Drawing.Point(267, 71);
             this.btnGdiPlu.Name = "btnGdiPlu";
             this.btnGdiPlu.Size = new System.Drawing.Size(104, 23);
             this.btnGdiPlu.TabIndex = 0;
             this.btnGdiPlu.Text = "GDI内存缓冲绘制";
             this.btnGdiPlu.UseVisualStyleBackColor = true;
             this.btnGdiPlu.Click += new System.EventHandler(this.btnGdiPlu_Click);
+            // 
+            // btnNetGdi
+            // 
+            this.btnNetGdi.Location = new System.Drawing.Point(24, 71);
+            this.btnNetGdi.Name = "btnNetGdi";
+            this.btnNetGdi.Size = new System.Drawing.Size(91, 23);
+            this.btnNetGdi.TabIndex = 3;
+            this.btnNetGdi.Text = "NET Gdi";
+            this.btnNetGdi.UseVisualStyleBackColor = true;
+            this.btnNetGdi.Click += new System.EventHandler(this.btnNetGdi_Click);
             // 
             // Form1
             // 
@@ -332,6 +344,8 @@
             this.tabPage4.ResumeLayout(false);
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.Button btnNetGdi;
 
         private System.Windows.Forms.Button btnGdi;
         private System.Windows.Forms.Button btnGdiPlu;
