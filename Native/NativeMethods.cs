@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Security;
 using System.Text;
 
@@ -425,7 +426,10 @@ public struct WindowMessage
             THICKFRAME      = 0x00040000,
             TABSTOP         = 0x00010000,
             MINIMIZEBOX     = 0x00020000,
-            MAXIMIZEBOX     = 0x00010000
+            MAXIMIZEBOX     = 0x00010000,
+            OVERLAPPEDWINDOW = (OVERLAPPED | CAPTION | SYSMENU |
+                                   THICKFRAME | MINIMIZEBOX | MAXIMIZEBOX)
+
         }
         
         [DllImport("User32", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -443,11 +447,19 @@ public struct WindowMessage
             IntPtr hInst,
             [MarshalAs(UnmanagedType.AsAny)] object lpParam);
         
+        [DllImport("User32", SetLastError=true)]
+        internal static extern IntPtr CreateWindowEx (
+            WS_EX dwExStyle, string lpClassName, string lpWindowName, WS dwStyle,
+            int X, int Y, int nWidth, int nHeight, int hWndParent, IntPtr hMenu,
+            IntPtr hInstance, IntPtr lpParam);
+        
+        
         [DllImport("user32", EntryPoint = "SetLayeredWindowAttributes")]
         public static extern int SetLayeredWindowAttributes(IntPtr Handle, int crKey, byte bAlpha, int dwFlags);
         [DllImport("user32.dll", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
         public static extern bool ShowWindow(IntPtr hWnd, int cmdShow);
-        
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern bool UpdateWindow(IntPtr hWnd);
         
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct HDC
@@ -456,25 +468,24 @@ public struct WindowMessage
             public IntPtr ptr;
         }
         [StructLayout(LayoutKind.Sequential)]
-        public unsafe struct PAINTSTRUCT
-        {
+        public struct PAINTSTRUCT {
             public IntPtr hdc;
-            public Boolean fErase;
+            public bool fErase;
             public RECT rcPaint;
-            public Boolean fRestore;
-            public Boolean fIncUpdate;
-            public fixed byte rgbReserved[32];
+            public bool fRestore;
+            public bool fIncUpdate;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst=32)] public byte [] rgbReserved;
         }
         
         
         // [DllImport("User32", ExactSpelling = true, EntryPoint = "BeginPaint", CharSet = CharSet.Auto)]
         // public static extern IntPtr BeginPaint(IntPtr hWnd, [In, Out] [In, Out]  ref NativeMethods.PAINTSTRUCT lpPaint);
        
-        [DllImport("User32", ExactSpelling = true)]
-        public static extern IntPtr BeginPaint(IntPtr hWnd, ref PAINTSTRUCT lpPaint);
-        public static IntPtr BeginPaint(HandleRef hWnd, ref PAINTSTRUCT lpPaint)
+        [DllImport("User32", ExactSpelling = true, EntryPoint = "BeginPaint", CharSet = CharSet.Auto)]
+        public static extern IntPtr BeginPaint(IntPtr hWnd, out PAINTSTRUCT lpPaint);
+        public static IntPtr BeginPaint(HandleRef hWnd, out PAINTSTRUCT lpPaint)
         {
-            IntPtr result = BeginPaint(hWnd.Handle, ref lpPaint);
+            IntPtr result = BeginPaint(hWnd.Handle, out lpPaint);
             GC.KeepAlive(hWnd.Wrapper);
             return result;
         }
@@ -551,8 +562,10 @@ public struct WindowMessage
         
         [DllImport( "gdi32.dll" )]
         public static extern bool MoveToEx( IntPtr hDC, int xStart, int yStart, IntPtr prevPoint );
-        [DllImport( "gdi32.dll" )]
-        public static extern IntPtr SelectObject( IntPtr hDC, IntPtr hObject );
+        // [DllImport( "gdi32.dll" )]
+        // public static extern IntPtr SelectObject( IntPtr hDC, IntPtr hObject );
+        [DllImport("gdi32.dll", EntryPoint = "SelectObject")]
+        public static extern IntPtr SelectObject([In] IntPtr hdc, [In] IntPtr hgdiobj);
         
         [DllImport("user32.dll")]
         public static extern bool ClientToScreen(IntPtr hWnd, ref Point lpPoint);
@@ -560,7 +573,7 @@ public struct WindowMessage
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool BRePaint);
         
-        [DllImport( "gdi32.dll" )]
+        [DllImport( "gdi32.dll" ,SetLastError=true, ExactSpelling=true, CharSet=CharSet.Auto)]
         public static extern Boolean BitBlt( IntPtr hDC, int x,int y,int w,int h,IntPtr srcDc,int xSrc,int ySrc,int dwRop );
         [DllImport( "gdi32.dll" )]
         public static extern IntPtr DeleteDC( IntPtr hDC);
@@ -582,13 +595,50 @@ public struct WindowMessage
         public const int PS_DOT     = 2;
         public const int PS_DASHDOT = 3;
         
+        // [DllImport("gdi32.dll")]
+        // public static extern IntPtr CreatePen(int nPenStyle, int nWidth, int crColor);
+
+        public enum PenStyle : int
+        {
+            PS_SOLID    = 0, //The pen is solid.
+            PS_DASH     = 1, //The pen is dashed.
+            PS_DOT      = 2, //The pen is dotted.
+            PS_DASHDOT      = 3, //The pen has alternating dashes and dots.
+            PS_DASHDOTDOT       = 4, //The pen has alternating dashes and double dots.
+            PS_NULL     = 5, //The pen is invisible.
+            PS_INSIDEFRAME      = 6,// Normally when the edge is drawn, it’s centred on the outer edge meaning that half the width of the pen is drawn
+            // outside the shape’s edge, half is inside the shape’s edge. When PS_INSIDEFRAME is specified the edge is drawn
+            //completely inside the outer edge of the shape.
+            PS_USERSTYLE    = 7,
+            PS_ALTERNATE    = 8,
+            PS_STYLE_MASK       = 0x0000000F,
+
+            PS_ENDCAP_ROUND     = 0x00000000,
+            PS_ENDCAP_SQUARE    = 0x00000100,
+            PS_ENDCAP_FLAT      = 0x00000200,
+            PS_ENDCAP_MASK      = 0x00000F00,
+
+            PS_JOIN_ROUND       = 0x00000000,
+            PS_JOIN_BEVEL       = 0x00001000,
+            PS_JOIN_MITER       = 0x00002000,
+            PS_JOIN_MASK    = 0x0000F000,
+
+            PS_COSMETIC     = 0x00000000,
+            PS_GEOMETRIC    = 0x00010000,
+            PS_TYPE_MASK    = 0x000F0000
+        };
         [DllImport("gdi32.dll")]
-        public static extern IntPtr CreatePen(int nPenStyle, int nWidth, int crColor);
+        public static extern IntPtr CreatePen(PenStyle fnPenStyle, int nWidth, uint crColor);
+        
         [DllImport("gdi32.dll")]
-        public static extern IntPtr Rectangle(IntPtr hdc,float a,float b,float c,float d);
+        public static extern bool Rectangle(IntPtr hdc,int a,int b,int c,int d);
 
         [System.Runtime.InteropServices.DllImportAttribute("USER32.DLL")]
-        public static extern unsafe long FillRect(IntPtr hDc,ref RECT lpRect, IntPtr hBrush); 
+        public static extern long FillRect(IntPtr hDc,ref RECT lpRect, IntPtr hBrush); 
+        [DllImport("gdi32.dll", SetLastError = true)]
+        public static extern bool TextOut(IntPtr HDC, int X, int Y,string str, int cout);
+
+        
         
         [System.Runtime.InteropServices.DllImport("User32.dll")]
         public static extern IntPtr GetDC(IntPtr Hwnd); //其在MSDN中原型为HDC GetDC(HWND hWnd),HDC和HWND都是驱动器句柄（长指针），在C#中只能用IntPtr代替了
@@ -840,7 +890,9 @@ public struct WindowMessage
         private int _pt_y;
 }
         [DllImport("User32", SetLastError=true, EntryPoint="GetMessageW", ExactSpelling=true, CharSet=CharSet.Unicode)]
-        public static extern int GetMessageW([In, Out] ref MSG msg, IntPtr hWnd, int uMsgFilterMin, int uMsgFilterMax);
+        public static extern Boolean GetMessageW([In, Out] ref MSG msg, IntPtr hWnd, int uMsgFilterMin, int uMsgFilterMax);
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern bool GetMessage(ref MSG msg, IntPtr hwnd, int minFilter, int maxFilter);
         
         [DllImport("user32.dll", ExactSpelling=true, CharSet=CharSet.Auto)]
         public static extern bool TranslateMessage([In, Out] ref MSG msg);
@@ -850,7 +902,8 @@ public struct WindowMessage
  
         [DllImport("user32.dll", ExactSpelling = true)]
         public static extern IntPtr DispatchMessageW(ref MSG msg);
-
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int DispatchMessage(ref MSG msg);
         
         // [1]. hProcess
         //     由OpenProcess返回的进程句柄。

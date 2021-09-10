@@ -52,8 +52,8 @@
             this.btnInjectCode = new System.Windows.Forms.Button();
             this.textAsmCode = new System.Windows.Forms.TextBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.btnGDI = new System.Windows.Forms.Button();
-            this.textBoxWinTitle = new System.Windows.Forms.TextBox();
+            this.btnGdi = new System.Windows.Forms.Button();
+            this.btnGdiPlu = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -196,7 +196,6 @@
             this.comboBoxType.Size = new System.Drawing.Size(82, 20);
             this.comboBoxType.TabIndex = 2;
             this.comboBoxType.Text = "选择类型";
-            this.comboBoxType.SelectedIndexChanged += new System.EventHandler(this.comboBoxType_SelectedIndexChanged);
             // 
             // textMemAddr
             // 
@@ -284,8 +283,8 @@
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.textBoxWinTitle);
-            this.tabPage4.Controls.Add(this.btnGDI);
+            this.tabPage4.Controls.Add(this.btnGdi);
+            this.tabPage4.Controls.Add(this.btnGdiPlu);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(448, 491);
@@ -293,23 +292,25 @@
             this.tabPage4.Text = "D3D";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
-            // btnGDI
+            // btnGdi
             // 
-            this.btnGDI.Location = new System.Drawing.Point(23, 61);
-            this.btnGDI.Name = "btnGDI";
-            this.btnGDI.Size = new System.Drawing.Size(75, 23);
-            this.btnGDI.TabIndex = 0;
-            this.btnGDI.Text = "GDI绘制";
-            this.btnGDI.UseVisualStyleBackColor = true;
-            this.btnGDI.Click += new System.EventHandler(this.btnGDI_Click);
+            this.btnGdi.Location = new System.Drawing.Point(24, 28);
+            this.btnGdi.Name = "btnGdi";
+            this.btnGdi.Size = new System.Drawing.Size(91, 23);
+            this.btnGdi.TabIndex = 2;
+            this.btnGdi.Text = "GDI普通绘制";
+            this.btnGdi.UseVisualStyleBackColor = true;
+            this.btnGdi.Click += new System.EventHandler(this.btnGdi_Click);
             // 
-            // textBoxWinTitle
+            // btnGdiPlu
             // 
-            this.textBoxWinTitle.Location = new System.Drawing.Point(23, 22);
-            this.textBoxWinTitle.Name = "textBoxWinTitle";
-            this.textBoxWinTitle.Size = new System.Drawing.Size(100, 21);
-            this.textBoxWinTitle.TabIndex = 1;
-            this.textBoxWinTitle.Text = "无标题 - 记事本";
+            this.btnGdiPlu.Location = new System.Drawing.Point(121, 28);
+            this.btnGdiPlu.Name = "btnGdiPlu";
+            this.btnGdiPlu.Size = new System.Drawing.Size(104, 23);
+            this.btnGdiPlu.TabIndex = 0;
+            this.btnGdiPlu.Text = "GDI内存缓冲绘制";
+            this.btnGdiPlu.UseVisualStyleBackColor = true;
+            this.btnGdiPlu.Click += new System.EventHandler(this.btnGdiPlu_Click);
             // 
             // Form1
             // 
@@ -329,20 +330,19 @@
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             this.tabPage4.ResumeLayout(false);
-            this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
         }
 
-        private System.Windows.Forms.TextBox textBoxWinTitle;
+        private System.Windows.Forms.Button btnGdi;
+        private System.Windows.Forms.Button btnGdiPlu;
 
-        private System.Windows.Forms.Button btnGDI;
+
         private System.Windows.Forms.TabPage tabPage4;
 
         private System.Windows.Forms.ComboBox comboBoxType;
 
         private System.Windows.Forms.Button btnReadMem;
         private System.Windows.Forms.TextBox textMemAddr;
-        private System.Windows.Forms.ComboBox comboBox1;
 
         private System.Windows.Forms.TextBox textBoxLog;
 
@@ -353,13 +353,11 @@
         private System.Windows.Forms.Button btnInjectCode;
 
         private System.Windows.Forms.TextBox textAsmCode;
-        private System.Windows.Forms.Button button1;
 
         private System.Windows.Forms.TabPage tabPage3;
 
         private System.Windows.Forms.TabControl tabControl;
 
-        private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
 

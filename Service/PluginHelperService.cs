@@ -494,8 +494,9 @@ namespace PluginHelper.Service
 
         IntPtr GameHWND;
         private NativeMethods.RECT WBounds = default;
-        public IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 1,  Color.FromArgb(255,0,0).ToArgb());
         public IntPtr EspHWND;
+
+
         public unsafe void drawGDIPlus(int x,int y,int w,int h)
         {
             
@@ -505,20 +506,18 @@ namespace PluginHelper.Service
                 // throw new Win32Exception("GetClientRect exception");
             }
 
-            string className = "MainWindowMainWindow";
+            string className = "MainWindow";
             
             NativeMethods.WNDCLASSEX_D WClass = new NativeMethods.WNDCLASSEX_D();
             WClass.cbSize =   Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX_D));
             WClass.style = 0;
             WClass.lpfnWndProc =  lpfnWndProc;
-            // WClass.lpfnWndProc =  Marshal.GetFunctionPointerForDelegate((Delegate) (NativeMethods.WndProc) lpfnWndProc);;
-
+            // WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
+            // WClass.hInstance = Process.GetCurrentProcess().Handle;
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
-            // WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
             WClass.hIcon = IntPtr.Zero;
             WClass.hCursor = new IntPtr(0);
-            WClass.hbrBackground = NativeMethods.CriticalGetStockObject(NativeMethods.WHITE_BRUSH);
             WClass.lpszMenuName = "this is lpszMenuName";
             WClass.lpszClassName = className;
             WClass.hIconSm = new IntPtr(0);
@@ -528,34 +527,26 @@ namespace PluginHelper.Service
             {
                 throw new Win32Exception("registerClassEx exception");
             }
-            const int LWA_COLORKEY = 0x01;
             IntPtr Hinstance = new IntPtr(null);
-            EspHWND = NativeMethods.CreateWindowExW(NativeMethods.WS_EX.TRANSPARENT | NativeMethods.WS_EX.TOPMOST | NativeMethods.WS_EX.LAYERED, 
+            EspHWND = NativeMethods.CreateWindowEx(NativeMethods.WS_EX.TRANSPARENT | NativeMethods.WS_EX.TOPMOST | NativeMethods.WS_EX.LAYERED, 
                 className, "this is lpWindowsName", NativeMethods.WS.POPUP, 0, 0, WBounds.right, WBounds.bottom,
-                new IntPtr(null), new IntPtr(null), Hinstance, new IntPtr(null));
-            
+                0, new IntPtr(null), Hinstance, new IntPtr(null));
+            //EspHWND = NativeMethods.CreateWindowExW(0, 
+            //    className, "this is lpWindowsName", NativeMethods.WS.OVERLAPPEDWINDOW, 0, 0, WBounds.right, WBounds.bottom,
+            //    new IntPtr(0), new IntPtr(null), Hinstance, new IntPtr(null));
             if (EspHWND==IntPtr.Zero)
             {
                 throw new Win32Exception("CreateWindowExW exception");
             }
-            
-            // if (NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255,255,255).ToArgb(), 255, LWA_COLORKEY)==0)
-            // {
-            //     throw new Win32Exception("SetLayeredWindowAttributes exception");
-            //
-            // }
-            
-            if (NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(0,0,0).ToArgb(), 255, 0x00000002)==0)
-            {
-                //throw new Win32Exception("SetLayeredWindowAttributes exception");
+          
+            const int LWA_COLORKEY = 0x01;
+            const int LWA_ALPHA = 0x00000002;
+            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, LWA_COLORKEY);
+            // NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(0, 0, 0).ToArgb(), 255, LWA_ALPHA);
 
-            }
-            
-            if (NativeMethods.ShowWindow(EspHWND, 1))
-            {
-                // throw new Win32Exception(Marshal.GetLastWin32Error());
+            NativeMethods.ShowWindow(EspHWND, 1);
+            NativeMethods.UpdateWindow(EspHWND);
 
-            }
             uint tmp;
             NativeMethods.MSG Msg = default;
             
@@ -571,28 +562,30 @@ namespace PluginHelper.Service
             }
             
             
-            while (NativeMethods.GetMessageW(ref Msg, IntPtr.Zero, 0, 0) > 0) {
-                var translateMessage = NativeMethods.TranslateMessage(ref Msg);
-                var dispatchMessageW = NativeMethods.DispatchMessageW(ref Msg);
-                Thread.Sleep(1);
+            while (NativeMethods.GetMessageW(ref Msg, IntPtr.Zero, 0, 0)) {
+                NativeMethods.TranslateMessage(ref Msg);
+                NativeMethods.DispatchMessageW(ref Msg);
             }
             
         }
 
-        private unsafe IntPtr WorkLoop()
+        private IntPtr WorkLoop()
         {
             while (true)
             {
-                fixed (NativeMethods.RECT* dev = &WBounds)
+                unsafe
                 {
-                    Boolean flag = NativeMethods.InvalidateRect(EspHWND, dev, true);
-                    Thread.Sleep(16);
+                    fixed (NativeMethods.RECT* dev = &WBounds)
+                    {
+                        NativeMethods.InvalidateRect(EspHWND, dev, true);
+                        Thread.Sleep(16);
+                    }
                 }
             }
             return IntPtr.Zero;
         }
 
-        private unsafe IntPtr MovWindow()
+        private IntPtr MovWindow()
         {
             while (true)
             {
@@ -603,7 +596,7 @@ namespace PluginHelper.Service
                 point.Y = WBounds.top;
                 NativeMethods.ClientToScreen(GameHWND, ref point);
                 NativeMethods.MoveWindow(EspHWND, point.X, point.Y, WBounds.right, WBounds.bottom, true);
-                // Thread.Sleep(1000);
+                Thread.Sleep(1000);
             }
             return IntPtr.Zero;
         }
@@ -613,7 +606,7 @@ namespace PluginHelper.Service
         private static int WM_NCPAINT = 0x0085;
         private static int WM_ERASEBKGND = 0x0014;
         private static int WM_PAINT = (0x000F);
-        private unsafe int lpfnWndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
+        private  int lpfnWndProc(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
               
             IntPtr Memhdc;
@@ -625,37 +618,50 @@ namespace PluginHelper.Service
                 {
 
                     // https://www.cnblogs.com/zhoug2020/p/5622136.html
-                    NativeMethods.PAINTSTRUCT ps = default;
-                    
-                    // TODO ps.handle 是否等于 hdc
-                    hdc = NativeMethods.BeginPaint(hwnd, ref ps);
-
-                    int win_width = WBounds.right - WBounds.left;
-                    int win_height = WBounds.bottom + WBounds.left;
-                    
-                    Memhdc = NativeMethods.CreateCompatibleDC(hdc);
-                    Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
-                    NativeMethods.SelectObject(Memhdc, Membitmap);
-                    NativeMethods.FillRect(Memhdc, ref WBounds, new IntPtr(0xF800));
-                        
-                    Draw(Memhdc, 200, 100,400,200);
-
-                    Int32 SRCCOPY = 0x00CC0020;
-                    // Bitblt作用将某一内存块的数据传送到另一内存块
-                    NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
-                    NativeMethods.DeleteObject(Membitmap);
-                    NativeMethods.DeleteDC(Memhdc);
-                    NativeMethods.DeleteDC(hdc);
-                    NativeMethods.EndPaint(hwnd, ref ps);
-
-                    fixed (NativeMethods.RECT* dev = &WBounds)
+                    try
                     {
-                        // 函数来强制使客户区的一个矩阵失效
-                        NativeMethods.ValidateRect(hwnd, dev);
-                    }
+                        unsafe
+                        {
+                            IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PS_SOLID, 1, (uint)ColorTranslator.ToWin32(Color.Red));
 
+                            NativeMethods.PAINTSTRUCT ps;
+                            hdc = NativeMethods.BeginPaint(hwnd, out ps);
+                          
+                            int win_width = WBounds.right - WBounds.left;
+                            int win_height = WBounds.bottom + WBounds.left;
+                            
+                            Memhdc = NativeMethods.CreateCompatibleDC(hdc);
+                            Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
+                            NativeMethods.SelectObject(Memhdc, Membitmap);
+                            NativeMethods.FillRect(Memhdc, ref WBounds, new IntPtr(0x0));
+                            NativeMethods.TextOut(Memhdc, 0, 0, ("这是一个简单的绘图例子"), ("这是一个简单的绘图例子").Length*2);
+
+                            var oldPen = NativeMethods.SelectObject(Memhdc, BoxPen);
+                            Draw(Memhdc, 200, 100,400,200);
+
+                            Int32 SRCCOPY = 0x00CC0020;
+                            // Bitblt作用将某一内存块的数据传送到另一内存块
+                            NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
+                            
+                            NativeMethods.DeleteObject(NativeMethods.SelectObject(Memhdc, oldPen));
+                            NativeMethods.DeleteObject(Membitmap);
+                            NativeMethods.DeleteDC(Memhdc);
+                            NativeMethods.DeleteDC(hdc);
+                            NativeMethods.EndPaint(hwnd, ref ps);
+                            fixed (NativeMethods.RECT* dev = &WBounds)
+                            {
+                                // 函数来强制使客户区的一个矩阵失效
+                                NativeMethods.ValidateRect(hwnd, dev);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        throw;
+                    }
+                    return 0;
                 }
-                break;
                 
                 case 0x0014: // WM_ERASEBKGND
                     return 1;
@@ -674,7 +680,6 @@ namespace PluginHelper.Service
         
         void Draw(IntPtr hdc,int x,int y,int w,int h)
         {
-            NativeMethods.SelectObject(hdc, BoxPen);
             NativeMethods.Rectangle(hdc, x, y, w, h);
         }
         

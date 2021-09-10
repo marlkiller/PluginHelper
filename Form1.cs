@@ -142,27 +142,14 @@ namespace PluginHelper
     {
     }
 
-    private void comboBoxType_SelectedIndexChanged(object sender, EventArgs e)
+    private void btnGdi_Click(object sender, EventArgs e)
     {
-      
+      pluginHelperService.drawGDI(200,300,400,500);
     }
 
-
-    private void btnGDI_Click(object sender, EventArgs e)
+    private void btnGdiPlu_Click(object sender, EventArgs e)
     {
-
-      try
-      {
-        // pluginHelperService.drawGDI(200,300,400,500);
-        pluginHelperService.drawGDIPlus(200,300,400,500);
-
-      }
-      catch (Exception exception)
-      {
-        MessageBox.Show(exception.Message);
-        throw;
-      }
-
+      pluginHelperService.drawGDIPlus(200,300,400,500);
     }
   }
 }
