@@ -10,6 +10,12 @@ namespace PluginHelper.Native
     public class NativeMethods
 
     {
+    
+        [DllImport("kernel32.dll")]
+        public static extern Boolean AllocConsole();
+        [DllImport("kernel32.dll")]
+        public static extern Boolean FreeConsole(); 
+            
         public enum WindowsMessage : uint
         {
             WM_NULL = 0x0000,

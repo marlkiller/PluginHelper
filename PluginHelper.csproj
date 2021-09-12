@@ -41,7 +41,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -107,6 +107,7 @@
     <Compile Include="Handler\LogEventHandler.cs" />
     <Compile Include="Native\AsmUtilX64.cs" />
     <Compile Include="Native\AsmUtilX86.cs" />
+    <Compile Include="Native\ConsoleHelper.cs" />
     <Compile Include="Native\HookType.cs" />
     <Compile Include="Native\MemUtil.cs" />
     <Compile Include="Native\NativeMethods.cs" />

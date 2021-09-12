@@ -15,8 +15,6 @@ namespace PluginHelper.Service
 {
     public class PluginHelperService
     {
-        public event EventHandler<LogEventHandler> logEventHandler;
-
         public IntPtr processId { get; set; }
 
         public List<ProcessEntity> refreshProcessList(string filterName)
@@ -194,19 +192,16 @@ namespace PluginHelper.Service
             }
             
             IntPtr lpLLAddress = NativeMethods.GetProcAddress(NativeMethods.GetModuleHandle("user32.dll"), "MessageBoxA");
-
-            logEventHandler(this,new LogEventHandler($@"user32.dll >> MessageBoxA lpLLAddress : {lpLLAddress.ToString("x")}"));
-            
             var titleBytes = MemUtil.convertStr2ByteArr(title);
             var titleAddress = NativeMethods.VirtualAllocEx(openProcess, (IntPtr)null, (IntPtr)titleBytes.Length, NativeMethods.Commit, NativeMethods.ExecuteReadWrite);
             MemUtil.WriteBytes(openProcess,titleAddress,titleBytes,titleBytes.Length);
-            logEventHandler(this,new LogEventHandler("titleAddress >> " + titleAddress.ToString("x")));
+            ConsoleHelper.WriteLine(Level.DEBUG, ("titleAddress >> " + titleAddress.ToString("x")));
 
             var valueBytes = MemUtil.convertStr2ByteArr(value);
             var valueAddress = NativeMethods.VirtualAllocEx(openProcess, (IntPtr)null, (IntPtr)valueBytes.Length, NativeMethods.Commit, NativeMethods.ExecuteReadWrite);
             MemUtil.WriteBytes(openProcess,valueAddress,valueBytes,valueBytes.Length);
-            logEventHandler(this,new LogEventHandler("valueAddress >> " + valueAddress.ToString("x")));
-
+            ConsoleHelper.WriteLine(Level.DEBUG, ("valueAddress >> " + valueAddress.ToString("x")));
+            
             byte[] buffer;
             if (NativeMethods.Is64BitProcess())
             {
@@ -230,7 +225,7 @@ namespace PluginHelper.Service
                 MessageBox.Show("WriteProcessMemory 异常");
                 return false;                    
             }
-            logEventHandler(this,new LogEventHandler("lpAddress >> " + lpAddress.ToString("x")));
+            ConsoleHelper.WriteLine(Level.DEBUG, ("lpAddress >> " + lpAddress.ToString("x")));
             Clipboard.SetText(lpAddress.ToString("x"));
             MessageBox.Show("WriteProcessMemory!!!!");
 
@@ -252,7 +247,7 @@ namespace PluginHelper.Service
             NativeMethods.CloseHandle(remoteThread);
             NativeMethods.CloseHandle(openProcess);
             
-            logEventHandler(this,new LogEventHandler("inject code over ~"));
+            ConsoleHelper.WriteLine(Level.DEBUG, ("inject code over ~"));
 
             return true;
 
@@ -273,7 +268,7 @@ namespace PluginHelper.Service
             asmUtilX64.Popall();
             asmUtilX64.Ret();
 
-            logEventHandler?.Invoke(this,new LogEventHandler($"Shell Code : {asmUtilX64.formatAsmCode()}"));
+            ConsoleHelper.WriteLine(Level.DEBUG, ($"Shell Code : {asmUtilX64.formatAsmCode()}"));
 
             return asmUtilX64.inBytes();
             
@@ -364,7 +359,7 @@ namespace PluginHelper.Service
             asmUtilX86.Popad();
             asmUtilX86.Ret();
 
-            logEventHandler?.Invoke(this,new LogEventHandler($"Shell Code : {asmUtilX86.formatAsmCode()}"));
+            ConsoleHelper.WriteLine(Level.DEBUG, ($"Shell Code : {asmUtilX86.formatAsmCode()}"));
 
             return asmUtilX86.inBytes();
             

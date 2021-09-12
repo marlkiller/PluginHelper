@@ -20,15 +20,20 @@ namespace PluginHelper
     private PluginHelperService pluginHelperService = new();
 
     
-    public void consoleLog(object sender, LogEventHandler handler)
-    {
-      textBoxLog.AppendText(handler.log +"\r\n");
-    }
     public Form1()
     {
       InitializeComponent();
       
-      pluginHelperService.logEventHandler +=  consoleLog;
+      // #if DEBUG
+      NativeMethods.AllocConsole();
+      ConsoleHelper.WriteLine("注意：启动程序...");
+      ConsoleHelper.WriteLine(string.Format("DateTime  : {0}",new DateTime()));
+      ConsoleHelper.WriteLine("\tWritten by {0}","vvvvvvoid");
+      ConsoleHelper.WriteLine(Level.DEBUG, "这是一条{0}信息","DEBUG");
+      ConsoleHelper.WriteLine(Level.INFO, $"{"这是一条INFO信息"}");
+      ConsoleHelper.WriteLine(Level.WAIN, $"{"这是一条WARN信息"}");
+      ConsoleHelper.WriteLine(Level.ERROR, $"{"这是一条ERROR信息"}");
+      // #endif  
     }
   
 
