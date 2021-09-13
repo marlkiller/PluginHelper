@@ -437,7 +437,7 @@ namespace PluginHelper.Native
         [DllImport("User32", SetLastError = true)]
         internal static extern IntPtr CreateWindowEx(
             WS_EX dwExStyle, string lpClassName, string lpWindowName, WS dwStyle,
-            int X, int Y, int nWidth, int nHeight, int hWndParent, IntPtr hMenu,
+            int X, int Y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu,
             IntPtr hInstance, IntPtr lpParam);
 
 

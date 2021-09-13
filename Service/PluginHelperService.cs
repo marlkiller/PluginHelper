@@ -499,7 +499,7 @@ namespace PluginHelper.Service
             WClass.style = 0;
             WClass.lpfnWndProc =  lpfnWndProc;
             // WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
-            // WClass.hInstance = Process.GetCurrentProcess().Handle;
+            WClass.hInstance = NativeMethods.GetModuleHandle(null);
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
             WClass.hIcon = IntPtr.Zero;
@@ -513,10 +513,10 @@ namespace PluginHelper.Service
             {
                 throw new Win32Exception("registerClassEx exception");
             }
-            IntPtr Hinstance = new IntPtr(null);
+            // IntPtr Hinstance = new IntPtr(null);
             EspHWND = NativeMethods.CreateWindowEx(NativeMethods.WS_EX.TRANSPARENT | NativeMethods.WS_EX.TOPMOST | NativeMethods.WS_EX.LAYERED, 
                 className, "this is lpWindowsName", NativeMethods.WS.POPUP, 0, 0, WBounds.right, WBounds.bottom,
-                0, new IntPtr(null), Hinstance, new IntPtr(null));
+                GameHWND, new IntPtr(null), WClass.hInstance, new IntPtr(null));
             //EspHWND = NativeMethods.CreateWindowExW(0, 
             //    className, "this is lpWindowsName", NativeMethods.WS.OVERLAPPEDWINDOW, 0, 0, WBounds.right, WBounds.bottom,
             //    new IntPtr(0), new IntPtr(null), Hinstance, new IntPtr(null));
@@ -558,6 +558,7 @@ namespace PluginHelper.Service
                 {
                     fixed (NativeMethods.RECT* dev = &WBounds)
                     {
+                        // 该函数向指定的窗体更新区域添加一个矩形，然后窗体跟新区域的这一部分将被重新绘制
                         NativeMethods.InvalidateRect(EspHWND, dev, true);
                         Thread.Sleep(16);
                     }
