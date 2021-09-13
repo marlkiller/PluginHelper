@@ -368,6 +368,7 @@ namespace PluginHelper.Native
             NOPARENTNOTIFY = 0x00000004,
             TOPMOST = 0x00000008,
             ACCEPTFILES = 0x00000010,
+            // 事件穿过窗口，操作后面的窗口
             TRANSPARENT = 0x00000020,
             MDICHILD = 0x00000040,
             TOOLWINDOW = 0x00000080,
