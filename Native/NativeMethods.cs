@@ -446,6 +446,17 @@ namespace PluginHelper.Native
         public const int LWA_ALPHA = 0x2;
         public const int LWA_COLORKEY = 0x1;
         
+        // hwnd
+        //     指定分层窗口句柄。
+        // crKey
+        // 指定需要透明的背景颜色值，可用RGB()宏
+        // bAlpha
+        // 设置透明度，0表示完全透明，255表示不透明
+        // dwFlags
+        // 透明方式。可取以下值：
+        // LWA_ALPHA时：crKey参数无效，bAlpha参数有效；
+        // LWA_COLORKEY：窗体中的所有颜色为crKey的地方将变为透明，bAlpha参数无效。。
+        // LWA_ALPHA | LWA_COLORKEY：crKey的地方将变为全透明，而其它地方根据bAlpha参数确定透明度。
         [DllImport("user32", EntryPoint = "SetLayeredWindowAttributes")]
         public static extern int SetLayeredWindowAttributes(IntPtr Handle, int crKey, byte bAlpha, int dwFlags);
 
