@@ -584,7 +584,31 @@ namespace PluginHelper.Native
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateSolidBrush(int crColor);
 
+        public enum GCL : int
+        {
+            WNDPROC = -24,
+ 
+            ATOM = -32,
+            GCL_HBRBACKGROUND = -10,
+            COLOR_WINDOW = 5,
+        }
+        
 
+         [DllImport("User32", ExactSpelling = true)]
+        private static extern IntPtr SetClassLongW(IntPtr hwnd, GCL nIndex, IntPtr dwNewLong);
+ 
+        [DllImport("User32", ExactSpelling = true)]
+        private static extern IntPtr SetClassLongPtrW(IntPtr hwnd, GCL nIndex, IntPtr dwNewLong);
+ 
+        public static IntPtr SetClassLong(IntPtr hWnd, GCL nIndex, IntPtr dwNewLong)
+        {
+            if (IntPtr.Size == 4)
+            {
+                return SetClassLongW(hWnd, nIndex, dwNewLong);
+            }
+ 
+            return SetClassLongPtrW(hWnd, nIndex, dwNewLong);
+        }
         public enum PenStyle : int
         {
             PS_SOLID = 0, //The pen is solid.
