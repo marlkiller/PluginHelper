@@ -418,248 +418,34 @@ namespace PluginHelper.Service
             return buffer;
         }
 
-        private IntPtr hdc;
-        private IntPtr solidBrush;
-
+        private IGraph gdiGraphImpl;
         
-        public void drawGDI(int x,int y,int w,int h)
+        public void drawGDI(int type)
         {
-            new Thread(drawGDIStart).Start(new NativeMethods.RECT(x,y,w,h));
-        }
-
-        void drawGDIStart(object obj)
-        {
-            // 参数
-            var rectParams = (NativeMethods.RECT)obj;
-            
-            // 获取窗口句柄
-            var windowHandle = NativeMethods.GetWindowHandle(this.processId);
-            // 根据窗口句柄获得一个设备
-            hdc  = NativeMethods.GetDC(windowHandle);
-            // 创建一个具有指定颜色的逻辑刷子
-            solidBrush = NativeMethods.CreateSolidBrush(0x000000FF);
-
-            while (true)
+            if (gdiGraphImpl != null) return;
+            switch (type)
             {
-                Thread.Sleep(1000);
-
-                var rect = new NativeMethods.RECT();
-                NativeMethods.GetWindowRect(windowHandle, ref rect);
-
-                // 整个窗口画大圈
-                DrawBorderBox(0,0,rect.Width-50,rect.Height-110,5);
-                // 画小圈
-                DrawBorderBox(50,50,200,100,5);
-                // 画一条线
-                DrawLine(50, 50, 250, 150);
-            }            
-           
-        }
-        
-        IntPtr hNPen = NativeMethods.CreatePen(NativeMethods.PenStyle.PS_SOLID, 2, 0x000000FF);
-
-        void DrawLine(int StartX, int StartY, int EndX, int EndY)
-        {
-            var oldPen = NativeMethods.SelectObject(hdc, hNPen);
-            NativeMethods.MoveToEx(hdc, StartX, StartY, IntPtr.Zero); //start
-            NativeMethods.LineTo(hdc, EndX, EndY); //end
-            NativeMethods.DeleteObject(NativeMethods.SelectObject(hdc, oldPen));
-        }
-        void DrawBorderBox(int x, int y, int w, int h, int thickness)
-        {
-            DrawFilledRect(x, y, w, thickness); //Top horiz line
-            DrawFilledRect(x, y, thickness, h); //Left vertical line
-            DrawFilledRect((x + w), y, thickness, h); //right vertical line
-            DrawFilledRect(x, y + h, w + thickness, thickness); //bottom horiz line
-        }
-
-        unsafe void DrawFilledRect(int x, int y, int w, int h)
-        {   
-            NativeMethods.RECT rect = new NativeMethods.RECT( x, y, x + w, y + h);
-            NativeMethods.FillRect(hdc, ref rect, solidBrush);
-        }
-
-        IntPtr GameHWND;
-        private NativeMethods.RECT WBounds = default;
-        public IntPtr EspHWND;
-
-        public unsafe void drawGDIPlus(int x,int y,int w,int h)
-        {
-            
-            GameHWND = NativeMethods.GetWindowHandle(this.processId);
-            if (NativeMethods.GetClientRect(GameHWND, ref WBounds))
-            {
-                // throw new Win32Exception("GetClientRect exception");
-            }
-
-            string className = "MainWindow";
-            
-            NativeMethods.WNDCLASSEX_D WClass = new NativeMethods.WNDCLASSEX_D();
-            WClass.cbSize =   Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX_D));
-            WClass.style = 0;
-            WClass.lpfnWndProc =  lpfnWndProc;
-            WClass.hInstance = NativeMethods.GetModuleHandle(null);
-            WClass.cbClsExtra = 0;
-            WClass.cbWndExtra = 0;
-            WClass.hIcon = IntPtr.Zero;
-            WClass.hCursor = new IntPtr(0);
-            WClass.lpszMenuName = "this is lpszMenuName";
-            WClass.lpszClassName = className;
-            WClass.hIconSm = new IntPtr(0);
-            // WClass.hbrBackground = NativeMethods.GetStockObject(NativeMethods.Brush.Black);
-
-            
-            ushort registerClassEx = NativeMethods.RegisterClassEx(WClass);
-            if(registerClassEx == 0)
-            {
-                throw new Win32Exception("registerClassEx exception");
-            }
-            EspHWND = NativeMethods.CreateWindowEx(NativeMethods.WS_EX.TRANSPARENT | NativeMethods.WS_EX.TOPMOST | NativeMethods.WS_EX.LAYERED, 
-                className, "this is lpWindowsName", NativeMethods.WS.POPUP, 0, 0, WBounds.right, WBounds.bottom,
-                GameHWND, new IntPtr(null), WClass.hInstance, new IntPtr(null));
-            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_COLORKEY);
-            
-            //
-            // EspHWND = NativeMethods.CreateWindowExW(0, 
-            //     className, "this is lpWindowsName", NativeMethods.WS.OVERLAPPEDWINDOW, 0, 0, WBounds.right, WBounds.bottom,
-            //     new IntPtr(0), new IntPtr(null), WClass.hInstance, new IntPtr(null));
-            // NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_ALPHA);
-            
-            if (EspHWND==IntPtr.Zero)
-            {
-                throw new Win32Exception("CreateWindowExW exception");
-            }
-
-            NativeMethods.ShowWindow(EspHWND, 1);
-            NativeMethods.UpdateWindow(EspHWND);
-
-            NativeMethods.MSG Msg = default;
-            if (NativeMethods.CreateThread(IntPtr.Zero, 0, MovWindow, IntPtr.Zero, 0,  0)==IntPtr.Zero)
-            {
-                // throw new Win32Exception("CreateThread exception");
-            }
-
-            
-            if (NativeMethods.CreateThread(IntPtr.Zero, 0, WorkLoop, IntPtr.Zero, 0,  0)==IntPtr.Zero)
-            {
-                // throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-            
-            while (NativeMethods.GetMessageW(ref Msg, IntPtr.Zero, 0, 0)) {
-                NativeMethods.TranslateMessage(ref Msg);
-                NativeMethods.DispatchMessageW(ref Msg);
-            }
-            
-        }
-
-        private IntPtr WorkLoop()
-        {
-            while (true)
-            {
-                unsafe
-                {
-                    fixed (NativeMethods.RECT* dev = &WBounds)
-                    {
-                        // 该函数向指定的窗体更新区域添加一个矩形，然后窗体跟新区域的这一部分将被重新绘制
-                        NativeMethods.InvalidateRect(EspHWND, dev, true);
-                        Thread.Sleep(16);
-                    }
-                }
-            }
-            return IntPtr.Zero;
-        }
-
-        private IntPtr MovWindow()
-        {
-            while (true)
-            {
-                
-                NativeMethods.GetClientRect(GameHWND, ref WBounds);
-                Point point = new Point ();
-                point.X = WBounds.left;
-                point.Y = WBounds.top;
-                NativeMethods.ClientToScreen(GameHWND, ref point);
-                NativeMethods.MoveWindow(EspHWND, point.X, point.Y, WBounds.right, WBounds.bottom, true);
-                Thread.Sleep(1000);
-            }
-        }
-
-        private  int lpfnWndProc(IntPtr hwnd, NativeMethods.WindowsMessage msg, IntPtr wParam, IntPtr lParam)
-        {
-              
-            IntPtr Memhdc;
-            IntPtr hdc;
-            IntPtr Membitmap;
-            switch (msg)
-            {
-                case NativeMethods.WindowsMessage.WM_PAINT : // WM_PAINT
-                {
-
-                    // https://www.cnblogs.com/zhoug2020/p/5622136.html
-                    try
-                    {
-                        unsafe
-                        {
-                            IntPtr BoxPen = NativeMethods.CreatePen(NativeMethods.PenStyle.PS_SOLID, 1, (uint)ColorTranslator.ToWin32(Color.Red));
-
-                            NativeMethods.PAINTSTRUCT ps;
-                            hdc = NativeMethods.BeginPaint(hwnd, out ps);
-                          
-                            int win_width = WBounds.right - WBounds.left;
-                            int win_height = WBounds.bottom + WBounds.left;
-                            
-                            Memhdc = NativeMethods.CreateCompatibleDC(hdc);
-                            Membitmap = NativeMethods.CreateCompatibleBitmap(hdc, win_width, win_height);
-                            NativeMethods.SelectObject(Memhdc, Membitmap);
-                            NativeMethods.FillRect(Memhdc, ref WBounds, new IntPtr(0x0));
-                            NativeMethods.TextOut(Memhdc, 0, 0, ("这是一个简单的绘图例子"), ("这是一个简单的绘图例子").Length*2);
-
-                            var oldPen = NativeMethods.SelectObject(Memhdc, BoxPen);
-                            Draw(Memhdc, 200, 100,400,200);
-
-                            Int32 SRCCOPY = 0x00CC0020;
-                            // Bitblt作用将某一内存块的数据传送到另一内存块
-                            NativeMethods.BitBlt(hdc, 0, 0, win_width, win_height, Memhdc, 0, 0, SRCCOPY);
-                            
-                            NativeMethods.DeleteObject(NativeMethods.SelectObject(Memhdc, oldPen));
-                            NativeMethods.DeleteObject(Membitmap);
-                            NativeMethods.DeleteDC(Memhdc);
-                            NativeMethods.DeleteDC(hdc);
-                            NativeMethods.EndPaint(hwnd, ref ps);
-                            fixed (NativeMethods.RECT* dev = &WBounds)
-                            {
-                                // 函数来强制使客户区的一个矩阵失效
-                                NativeMethods.ValidateRect(hwnd, dev);
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        throw;
-                    }
-                    return 0;
-                }
-                
-                case NativeMethods.WindowsMessage.WM_ERASEBKGND: // WM_ERASEBKGND
-                    return 1;
-                case NativeMethods.WindowsMessage.WM_CLOSE: // WM_CLOSE
-                    NativeMethods.DestroyWindow(hwnd);
+                case 1 :
+                    gdiGraphImpl = new GdiGraphImpl();
                     break;
-                case NativeMethods.WindowsMessage.WM_DESTROY: // WM_DESTROY
-                    NativeMethods.PostQuitMessage(0);
+                case 2 :
+                    gdiGraphImpl = new GdiGraphWithBufferImpl();
+                    break;
+                case 3 :
+                    gdiGraphImpl = new GdiGraphWithBufferNetImpl();
                     break;
                 default:
-                    return NativeMethods.DefWindowProc(hwnd, msg, wParam, lParam);
+                    return;
             }
+            gdiGraphImpl.init(processId);
+            gdiGraphImpl.start();
+        }
 
-            return 0;
-        }
-        
-        void Draw(IntPtr hdc,int x,int y,int w,int h)
+        public void stopGdi()
         {
-            NativeMethods.Rectangle(hdc, x, y, w, h);
+            if (gdiGraphImpl == null) return;
+            gdiGraphImpl.destory();
+            gdiGraphImpl = null;
         }
-        
     }
 }

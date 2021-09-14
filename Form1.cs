@@ -150,32 +150,24 @@ namespace PluginHelper
 
     private void btnGdi_Click(object sender, EventArgs e)
     {
-      pluginHelperService.drawGDI(200,300,400,500);
+      pluginHelperService.drawGDI(1);
     }
 
     private void btnGdiPlu_Click(object sender, EventArgs e)
     {
-      pluginHelperService.drawGDIPlus(200,300,400,500);
+      pluginHelperService.drawGDI(2);
+
     }
-    GameEspForm gameEspForm ;
 
     private void btnNetGdi_Click(object sender, EventArgs e)
     {
-      if (gameEspForm == null)
-      {
-        gameEspForm = new GameEspForm();
-        gameEspForm.prosessId = pluginHelperService.processId;
-      }
+      pluginHelperService.drawGDI(3);
 
-      if (!gameEspForm.thread.IsAlive)
-      {
-        gameEspForm.thread.Start(new object());
-      }
-      else
-      {
-        gameEspForm.thread.Abort();
-      }
     }
 
+    private void btnStopGdi_Click(object sender, EventArgs e)
+    {
+      pluginHelperService.stopGdi();
+    }
   }
 }

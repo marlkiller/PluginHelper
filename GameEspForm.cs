@@ -11,7 +11,7 @@ namespace PluginHelper
     {
         public IntPtr prosessId;
         public Thread thread;
-
+        
         public GameEspForm()
         {
             InitializeComponent();

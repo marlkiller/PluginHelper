@@ -323,8 +323,9 @@ namespace PluginHelper.Native
         [DllImport("user32.dll", EntryPoint = "DefWindowProcW")]
         internal static extern int DefWindowProc(IntPtr hWnd, WindowsMessage msg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("user32.dll")]
-        public static extern bool DestroyWindow(IntPtr hWnd);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError=true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool DestroyWindow(IntPtr hwnd);
 
         [DllImport("user32.dll")]
         public static extern void PostQuitMessage(int nExitCode);
@@ -505,7 +506,7 @@ namespace PluginHelper.Native
 
 
         [DllImport("user32", EntryPoint = "UnregisterClass")]
-        public static extern int UnregisterClassA(string lpClassName, int hInstance);
+        public static extern int UnregisterClass(string lpClassName, IntPtr hInstance);
 
         // GetWindowRect是取得窗口在屏幕坐标系下的RECT坐标（包括客户区和非客户区），这样可以得到窗口的大小和相对屏幕左上角(0,0)的位置。 
         // GetClientRect取得窗口客户区(不包括非客户区)在客户区坐标系下的RECT坐标,可以得到窗口的大小，而不能得到相对屏幕的位置，因为这个矩阵是在客户区坐标系下（相对于窗口客户区的左上角）的。　　
@@ -872,8 +873,11 @@ namespace PluginHelper.Native
             // IntPtr lpStartAddress, // ThreadProc as friendly delegate
             IntPtr lpParameter,
             uint dwCreationFlags,
-            uint dwThreadId);
+            IntPtr dwThreadId);
 
+        [DllImport("kernel32.dll")]
+        public static extern bool TerminateThread(IntPtr hThread, uint dwExitCode);
+        
         [DllImport("user32", ExactSpelling = true)]
         public static extern unsafe Boolean InvalidateRect(IntPtr hWnd, RECT* lpRect, Boolean bErase);
 

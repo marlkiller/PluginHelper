@@ -114,6 +114,10 @@
     <Compile Include="Native\ThreadHijack.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\IGraph.cs" />
+    <Compile Include="Service\impl\GdiGraphImpl.cs" />
+    <Compile Include="Service\impl\GdiGraphWithBufferImpl.cs" />
+    <Compile Include="Service\impl\GdiGraphWithBufferNetImpl.cs" />
     <Compile Include="Service\PluginHelperService.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
