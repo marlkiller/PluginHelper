@@ -525,8 +525,8 @@ namespace PluginHelper.Service
                 throw new Win32Exception("CreateWindowExW exception");
             }
           
-            // NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_COLORKEY);
-            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_ALPHA);
+            NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_COLORKEY);
+            //NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_ALPHA);
 
             NativeMethods.ShowWindow(EspHWND, 1);
             NativeMethods.UpdateWindow(EspHWND);
