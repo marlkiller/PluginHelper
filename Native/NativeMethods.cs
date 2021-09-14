@@ -487,8 +487,18 @@ namespace PluginHelper.Native
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
+        public static class Brush {
+            public const int White  = 0;
+            public const int LtGray = 1;
+            public const int Gray   = 2;
+            public const int DkGray = 3;
+            public const int Black  = 4;
+            public const int Null   = 5;
+            public const int Hollow = Null;
+        }
+        
         [DllImport("gdi32.dll", EntryPoint = "GetStockObject", SetLastError = true, CharSet = CharSet.Auto)]
-        public static extern IntPtr CriticalGetStockObject(int stockObject);
+        public static extern IntPtr GetStockObject(int stockObject);
 
         [DllImport("gdi32.dll", EntryPoint = "CreateCompatibleBitmap")]
         public static extern IntPtr CreateCompatibleBitmap([In] IntPtr hdc, int nWidth, int nHeight);

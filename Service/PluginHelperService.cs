@@ -498,7 +498,6 @@ namespace PluginHelper.Service
             WClass.cbSize =   Marshal.SizeOf(typeof(NativeMethods.WNDCLASSEX_D));
             WClass.style = 0;
             WClass.lpfnWndProc =  lpfnWndProc;
-            // WClass.hInstance = NativeMethods.GetWindowLong(windowHandle, NativeMethods.GWL.HINSTANCE);
             WClass.hInstance = NativeMethods.GetModuleHandle(null);
             WClass.cbClsExtra = 0;
             WClass.cbWndExtra = 0;
@@ -507,6 +506,8 @@ namespace PluginHelper.Service
             WClass.lpszMenuName = "this is lpszMenuName";
             WClass.lpszClassName = className;
             WClass.hIconSm = new IntPtr(0);
+            // WClass.hbrBackground = NativeMethods.GetStockObject(NativeMethods.Brush.Black);
+
             
             ushort registerClassEx = NativeMethods.RegisterClassEx(WClass);
             if(registerClassEx == 0)
@@ -517,12 +518,12 @@ namespace PluginHelper.Service
                 className, "this is lpWindowsName", NativeMethods.WS.POPUP, 0, 0, WBounds.right, WBounds.bottom,
                 GameHWND, new IntPtr(null), WClass.hInstance, new IntPtr(null));
             NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_COLORKEY);
-
-          
-            //EspHWND = NativeMethods.CreateWindowExW(0, 
-            //    className, "this is lpWindowsName", NativeMethods.WS.OVERLAPPEDWINDOW, 0, 0, WBounds.right, WBounds.bottom,
-            //    new IntPtr(0), new IntPtr(null), Hinstance, new IntPtr(null));
-            //NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_ALPHA);
+            
+            //
+            // EspHWND = NativeMethods.CreateWindowExW(0, 
+            //     className, "this is lpWindowsName", NativeMethods.WS.OVERLAPPEDWINDOW, 0, 0, WBounds.right, WBounds.bottom,
+            //     new IntPtr(0), new IntPtr(null), WClass.hInstance, new IntPtr(null));
+            // NativeMethods.SetLayeredWindowAttributes(EspHWND,  Color.FromArgb(255, 255, 255).ToArgb(), 255, NativeMethods.LWA_ALPHA);
             
             if (EspHWND==IntPtr.Zero)
             {
